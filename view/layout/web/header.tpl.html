@@ -1,0 +1,19 @@
+<div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/"><?=c('site_name')?></a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li<?php if( g('c') == 'default' ): ?> class="active"<?php endif; ?>><a href="?c=default">首页</a></li>
+              <li<?php if( g('a') == 'help' ): ?> class="active"<?php endif; ?>><a href="?a=help">帮助</a></li>
+              <li<?php if( g('c') == 'admin' ): ?> class="active"<?php endif; ?>><a href="?c=admin">管理</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
