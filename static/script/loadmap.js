@@ -69,7 +69,7 @@ function drawARoute(line, markers, admin) {
     });
     _marker.content = markers[i].content;
     regMarkerEvents(_marker);
-    _marker.index = gMarkersArray.index;
+    _marker.index = gMarkersArray.length;
     gMarkersArray.push(_marker);
   }
 }
