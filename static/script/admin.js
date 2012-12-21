@@ -236,7 +236,8 @@ function setMode(mode) {
     }
     if(gMarkersArray.length != 0) {
       for(var i = 0 ; i < gMarkersArray.length ; i++) {
-        gMarkersArray[i].setDraggable(false);
+      	if(gMarkersArray[i] != null)
+          gMarkersArray[i].setDraggable(false);
       }
     }
   }
