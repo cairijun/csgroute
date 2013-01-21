@@ -34,7 +34,7 @@
 
       <div class="span4">
         <!--线路列表-->
-        <div class="btn-group btn-group-vertical" style="width: 100%;" data-toggle="buttons-radio">
+        <div class="btn-group btn-group-vertical" style="overflow-y: auto; height: 500px; width: 100%;" data-toggle="buttons-radio">
           <?php if(isset($routesList) && is_array($routesList)): ?>
           <?php foreach($routesList as $aRoute): ?>
           <button type="button" style="text-align: left;padding-left: 8px;" class="btn btn-block" routeId="<?=$aRoute['id']?>">
