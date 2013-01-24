@@ -32,7 +32,7 @@ function saveARoute() {
       path : _linePathToUpload,
       strokeWeight:3,
       strokeColor:gLine.strokeColor,
-      strokeOpacity:0.5
+      strokeOpacity:1.0
     },
     markers : _markersArrayToUpload
   };
