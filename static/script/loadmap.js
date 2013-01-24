@@ -27,6 +27,8 @@ function clearMap() {
     for(i = 0 ; i < gMarkersArray.length ; i++) {
       if(gMarkersArray[i] != null) {
         gMarkersArray[i].setMap(null);
+        gMarkersArray[i].label.setMap(null);
+        gMarkersArray[i].label = null;
       }
     }
     gMarkersArray.length = 0;
@@ -68,6 +70,8 @@ function drawARoute(line, markers, admin) {
           markers[i].position[0], markers[i].position[1])
     });
     _marker.content = markers[i].content;
+    var _label = new MarkerLabel(_marker.getPosition(), _marker.getTitle(), map);
+    _marker.label = _label;
     regMarkerEvents(_marker);
     _marker.index = gMarkersArray.length;
     gMarkersArray.push(_marker);
@@ -165,3 +169,42 @@ $(document).ready(function(){
     }).on('shown', initMap);
   }
 });
+
+
+//自定义一个MarkerLabel叠加层
+function MarkerLabel(position, label, map) {
+  this._position = position;
+  this._label = label;
+  this._map = map;
+  this._div = null;
+  this.setMap(map);
+}
+
+MarkerLabel.prototype = new google.maps.OverlayView();
+
+MarkerLabel.prototype.onAdd = function() {
+  var div = document.createElement('DIV');
+  div.style.border = '1px solid';
+  div.style.backgroundColor = 'white';
+  div.style.padding = '2px';
+  div.style.position = 'absolute';
+  div.style.boxShadow = '2px 2px 4px #000';
+  div.appendChild(document.createTextNode(this._label));
+
+  this._div = div;
+  var panes = this.getPanes();
+  panes.overlayLayer.appendChild(div);
+}
+
+MarkerLabel.prototype.draw = function() {
+  var overlayProjection = this.getProjection();
+  var pos = overlayProjection.fromLatLngToDivPixel(this._position);
+  var div = this._div;
+  div.style.left = pos.x + 'px';
+  div.style.top = pos.y + 'px';
+}
+
+MarkerLabel.prototype.onRemove = function() {
+  this._div.parentNode.removeChild(this._div);
+  this._div = null;
+}
