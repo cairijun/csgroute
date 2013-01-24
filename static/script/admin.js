@@ -30,9 +30,9 @@ function saveARoute() {
   var _routeData = {
     line : {
       path : _linePathToUpload,
-      strokeColor:"#f00",
       strokeWeight:3,
-      strokeOpacity:0.5
+      strokeColor:gLine.strokeColor,
+      strokeOpacity:1.0
     },
     markers : _markersArrayToUpload
   };
@@ -82,6 +82,7 @@ function addARoute() {
 
   gLine = new google.maps.Polyline({
     editable : true,
+    strokeColor : $('#routeType .active').data('color'),
     map : map
   });
   regLineEvents(gLine);
@@ -132,6 +133,11 @@ function regToolbarEvents() {
   //插入和删除的动作不直接绑定到工具栏按钮的click上，而是绑定到popover的确认按钮上
   var addPopoverDialog = '\
   <input id="routeName" class="input-block-level" type="text" placeholder="线路名称">\
+  <div id="routeType" class="btn-group" style="margin:0px 0px 10px" data-toggle="buttons-radio">\
+    <button data-color="red" class="btn btn-small btn-danger active">管道光缆</button>\
+    <button data-color="green" class="btn btn-small btn-success">架空ADSS</button>\
+    <button data-color="yellow" class="btn btn-small btn-warning">架空OPGW</button>\
+  </div>\
   <a href="javascript:addARoute();$(\'#add\').popover(\'hide\');" class="btn btn-primary">确定</a>\
   <a href="javascript:$(\'#add\').popover(\'hide\');" class="btn">取消</a>';
   $('#add').popover({
@@ -139,7 +145,7 @@ function regToolbarEvents() {
     placement : 'bottom',
     title : '添加线路',
     content : addPopoverDialog
-  });
+  }).click(function(){$('#editGroup .popover').css('width', 'auto');});//修正弹出框的宽度
 
   var deletePopoverDialog = '\
   <p class="text-error">确定要删除这条线路吗？</p>\
