@@ -9,8 +9,12 @@ function initMap(container) {
     };
     if(typeof(container) == 'undefined')
       container = "mapContainer";
-    map = new google.maps.Map(document.getElementById(container),
-                              options);
+    map = new google.maps.Map(document.getElementById(container), options);
+    if(typeof(controller) != 'undefined' && controller == 'default') {
+      //测距功能按键与管理页面冲突，所以只在查看页面加载
+      gRuleControl = new RuleControl(map);
+      map.controls[google.maps.ControlPosition.RIGHT_TOP].push(gRuleControl.getDomElement());
+    }
     gLine = null;
     gMarkersArray = [];
     gInfoWindow = null;
@@ -178,7 +182,7 @@ function MarkerLabel(position, label, map) {
   this._map = map;
   this._div = null;
   this.setMap(map);
-}
+};
 
 MarkerLabel.prototype = new google.maps.OverlayView();
 
@@ -194,7 +198,7 @@ MarkerLabel.prototype.onAdd = function() {
   this._div = div;
   var panes = this.getPanes();
   panes.overlayLayer.appendChild(div);
-}
+};
 
 MarkerLabel.prototype.draw = function() {
   var overlayProjection = this.getProjection();
@@ -202,9 +206,71 @@ MarkerLabel.prototype.draw = function() {
   var div = this._div;
   div.style.left = pos.x + 'px';
   div.style.top = pos.y + 'px';
-}
+};
 
 MarkerLabel.prototype.onRemove = function() {
   this._div.parentNode.removeChild(this._div);
   this._div = null;
-}
+};
+
+//自定一个RuleControl控件用于测距
+function RuleControl(map) {
+  this._map = map;
+  var div = document.createElement('div');
+  div.style.border = '1px solid';
+  div.style.backgroundColor = 'white';
+  div.style.paddingLeft = '2px';
+  div.style.paddingTop = '2px';
+  div.style.paddingBottom = '2px';
+  div.style.position = 'absolute';
+  div.style.boxShadow = '2px 2px 4px #000';
+  div.style.width = '40px';
+  div.innerHTML = '测距：0.00 km';
+  this._div = div;
+  this._line = new google.maps.Polyline({editable:true, geodesic:true, map:map, strokeWeight:2});
+
+  _this = this;
+  google.maps.event.addListener(map, 'click', function(e) {
+    _this._line.getPath().push(e.latLng);
+    _this.getDistance();
+  });
+  google.maps.event.addListener(_this._line, 'rightclick', function(e) {
+    if(typeof(e.vertex) != 'undefined') {
+      _this._line.getPath().removeAt(e.vertex);
+      _this.getDistance();
+    }
+  });
+  google.maps.event.addListener(_this._line, 'mouseup', function(e) {
+    if(typeof(e.vertex) != 'undefined') {
+      _this.getDistance();
+    }
+  });
+  google.maps.event.addDomListener(_this._div, 'click', function() {
+    _this._line.getPath().clear();
+    _this._div.innerHTML = '测距：0.00 km';
+  });
+};
+
+RuleControl.prototype.getDomElement = function() {
+  return this._div;
+};
+
+//计算路径长度并把结果显示到Rule控件上
+RuleControl.prototype.getDistance = function() {
+  var path = this._line.getPath();
+  var length = 0.0;
+  var R = 637813.7;
+  for(var i = 1; i < path.getLength(); i++) {
+    var _latlng0 = path.getAt(i - 1);
+    var _latlng1 = path.getAt(i);
+    var rLat0 = _latlng0.lat() * Math.PI / 180;
+    var rLat1 = _latlng1.lat() * Math.PI / 180;
+    var dRLng = (_latlng0.lng() - _latlng1.lng()) * Math.PI / 180;
+    var cosA =
+      Math.sin(rLat0) * Math.sin(rLat1) +
+      Math.cos(rLat0) * Math.cos(rLat1) * Math.cos(dRLng);
+    length += R * Math.acos(cosA);
+  }
+  length = Math.round(length) / 100;
+  this._div.innerHTML = '测距：' + length + ' km';
+};
