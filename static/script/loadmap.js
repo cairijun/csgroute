@@ -219,13 +219,12 @@ function RuleControl(map) {
   var div = document.createElement('div');
   div.style.border = '1px solid';
   div.style.backgroundColor = 'white';
-  div.style.paddingLeft = '2px';
-  div.style.paddingTop = '2px';
-  div.style.paddingBottom = '2px';
+  div.style.padding = '3px';
   div.style.position = 'absolute';
   div.style.boxShadow = '2px 2px 4px #000';
-  div.style.width = '40px';
-  div.innerHTML = '测距：0.00 km';
+  div.style.width = 'auto';
+  div.style.margin = '5px';
+  div.innerHTML = '测距：0 km';
   this._div = div;
   this._line = new google.maps.Polyline({editable:true, geodesic:true, map:map, strokeWeight:2});
 
@@ -248,7 +247,7 @@ function RuleControl(map) {
   });
   google.maps.event.addDomListener(_this._div, 'click', function() {
     _this._line.getPath().clear();
-    _this._div.innerHTML = '测距：0.00 km';
+    _this._div.innerHTML = '测距：0 km';
   });
 };
 
