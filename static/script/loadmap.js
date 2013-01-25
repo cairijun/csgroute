@@ -232,7 +232,6 @@ function RuleControl(map) {
   _this = this;
   google.maps.event.addListener(map, 'click', function(e) {
     _this._line.getPath().push(e.latLng);
-    _this.getDistance();
   });
   google.maps.event.addListener(_this._line, 'rightclick', function(e) {
     if(typeof(e.vertex) != 'undefined') {
@@ -240,10 +239,12 @@ function RuleControl(map) {
       _this.getDistance();
     }
   });
-  google.maps.event.addListener(_this._line, 'mouseup', function(e) {
-    if(typeof(e.vertex) != 'undefined') {
-      _this.getDistance();
-    }
+  //把添加和修改路径节点的事件处理程序绑定到路径节点数组中（直接绑定到_line中有优先级问题）
+  google.maps.event.addListener(_this._line.getPath(), 'insert_at', function() {
+    _this.getDistance();
+  });
+  google.maps.event.addListener(_this._line.getPath(), 'set_at', function() {
+    _this.getDistance();
   });
   google.maps.event.addDomListener(_this._div, 'click', function() {
     _this._line.getPath().clear();
