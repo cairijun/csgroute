@@ -124,10 +124,12 @@ function loadARoute(routeId, admin) {
     admin = false;
   }
   if(routeId.charAt(0) == '#') {
+    var color = gLine.strokeColor;//保存原线路颜色
     clearMap();//如果是新建线路，直接清除地图
     gLine = new google.maps.Polyline({
       editable : true,
-      map : map
+      map : map,
+      strokeColor : color
     });
     google.maps.event.addListener(gLine, 'rightclick', function(e) {
       if(gAddMode && ('vertex' in e)) {
