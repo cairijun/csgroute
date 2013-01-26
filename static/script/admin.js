@@ -194,7 +194,11 @@ function regMapEvents() {
             _marker.setTitle($('#markerTitle').val());
             _marker.content = $('#markerContent').val();
             _marker.index = gMarkersArray.length;
-            gMarkersArray.push(_marker);
+ 
+            //创建对应的Label
+            _marker.label = new MarkerLabel(_marker.getPosition(), _marker.getTitle(), map);
+
+           gMarkersArray.push(_marker);
             regMarkerEvents(_marker);
             $('#addMarkerModal').modal('hide');
           }, function() {
