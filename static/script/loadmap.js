@@ -18,6 +18,8 @@ function initMap(container) {
     gLine = null;
     gMarkersArray = [];
     gInfoWindow = null;
+    gCyanMarkerIconI = getCyanMarkerIcon(false);
+    gCyanMarkerIconS = getCyanMarkerIcon(true);
   }
 }
 
@@ -91,6 +93,10 @@ function drawARoute(line, markers, admin) {
         new google.maps.LatLng(
           markers[i].position[0], markers[i].position[1])
     });
+    if(typeof(markers[i].color) != 'undefined' && markers[i].color == 'cyan') {
+      _marker.setIcon(gCyanMarkerIconI);
+      _marker.setShadow(gCyanMarkerIconS);
+    }
     _marker.content = markers[i].content;
     var _label = new MarkerLabel(_marker.getPosition(), _marker.getTitle(), map);
     _marker.label = _label;
