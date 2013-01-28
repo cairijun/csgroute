@@ -195,6 +195,7 @@ MarkerLabel.prototype.onAdd = function() {
   div.style.padding = '2px';
   div.style.position = 'absolute';
   div.style.boxShadow = '2px 2px 4px #000';
+  div.style.whiteSpace = 'nowrap';
   div.appendChild(document.createTextNode(this._label));
 
   this._div = div;
