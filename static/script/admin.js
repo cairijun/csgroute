@@ -20,6 +20,7 @@ function saveARoute() {
     _markersArrayToUpload.push({
       title : gMarkersArray[i].getTitle(),
       content : gMarkersArray[i].content,
+      color : gMarkersArray[i].color,
       position : [
         gMarkersArray[i].getPosition().lat(),
         gMarkersArray[i].getPosition().lng()
@@ -198,7 +199,14 @@ function regMapEvents() {
             //创建对应的Label
             _marker.label = new MarkerLabel(_marker.getPosition(), _marker.getTitle(), map);
 
-           gMarkersArray.push(_marker);
+            //设置Marker颜色
+            _marker.color = $('#markerType .active').data('color');
+            if(_marker.color == 'cyan') {
+              _marker.setIcon(gCyanMarkerIconI); 
+              _marker.setShadow(gCyanMarkerIconS); 
+            }
+
+            gMarkersArray.push(_marker);
             regMarkerEvents(_marker);
             $('#addMarkerModal').modal('hide');
           }, function() {

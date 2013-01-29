@@ -18,6 +18,8 @@ function initMap(container) {
     gLine = null;
     gMarkersArray = [];
     gInfoWindow = null;
+    gCyanMarkerIconI = getCyanMarkerIcon(false);
+    gCyanMarkerIconS = getCyanMarkerIcon(true);
   }
 }
 
@@ -41,6 +43,24 @@ function clearMap() {
   if(gInfoWindow) {
     gInfoWindow = null;
   }
+}
+
+//获取青色Marker的ICON
+function getCyanMarkerIcon(isShadow) {
+  var icon = new google.maps.MarkerImage('./static/image/marker_sprite2.png');
+  if(isShadow) {
+    //阴影ICON
+    icon.size = new google.maps.Size(37, 34);
+    icon.origin = new google.maps.Point(20, 0);
+    icon.anchor = new google.maps.Point(10, 34);
+  }
+  else {
+    //非阴影ICON
+    icon.size = new google.maps.Size(20, 34);
+    icon.origin = new google.maps.Point(0, 0);
+    icon.anchor = new google.maps.Point(10, 34);
+  }
+  return icon;
 }
 
 //绘制一条线路
@@ -73,6 +93,10 @@ function drawARoute(line, markers, admin) {
         new google.maps.LatLng(
           markers[i].position[0], markers[i].position[1])
     });
+    if(typeof(markers[i].color) != 'undefined' && markers[i].color == 'cyan') {
+      _marker.setIcon(gCyanMarkerIconI);
+      _marker.setShadow(gCyanMarkerIconS);
+    }
     _marker.content = markers[i].content;
     var _label = new MarkerLabel(_marker.getPosition(), _marker.getTitle(), map);
     _marker.label = _label;
