@@ -96,6 +96,7 @@ function drawARoute(line, markers, admin) {
     if(typeof(markers[i].color) != 'undefined' && markers[i].color == 'cyan') {
       _marker.setIcon(gCyanMarkerIconI);
       _marker.setShadow(gCyanMarkerIconS);
+      _marker.color = markers[i].color;
     }
     _marker.content = markers[i].content;
     var _label = new MarkerLabel(_marker.getPosition(), _marker.getTitle(), map);
