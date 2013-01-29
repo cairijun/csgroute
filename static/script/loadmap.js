@@ -109,6 +109,7 @@ function regMarkerEvents(marker) {
     function() {
       if(gAddMode) {
         this.setMap(null);
+        this.label.setMap(null);
         gMarkersArray[this.index] = null;
       }
     }
