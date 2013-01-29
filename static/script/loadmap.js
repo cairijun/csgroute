@@ -114,6 +114,15 @@ function regMarkerEvents(marker) {
       }
     }
   );
+  //拖动时更新Label位置
+  google.maps.event.addListener(
+    marker, 'drag',
+    function(e) {
+      if(gAddMode) {
+        this.label.setPosition(e.latLng);
+      }
+    }
+  );
 }
 
 //向页面加载一条线路
@@ -216,6 +225,11 @@ MarkerLabel.prototype.onRemove = function() {
   this._div.parentNode.removeChild(this._div);
   this._div = null;
 };
+
+MarkerLabel.prototype.setPosition = function(pos) {
+  this._position = pos;
+  this.draw();
+}
 
 //自定一个RuleControl控件用于测距
 function RuleControl(map) {
