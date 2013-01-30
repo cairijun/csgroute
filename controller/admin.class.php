@@ -21,12 +21,12 @@ class adminController extends appController
     {
         $routeData = json_decode($_POST['routeData'], true);
         $routeId = $_POST['routeId'];
-        if(substr($routeId, 0, 1) == '#') {
+        if($routeId == '#') {
             //新线路
             $newId = add_a_route(
                 $routeData['markers'],
                 $routeData['line'],
-                substr($routeId, 1)
+                $_POST['routeName']
             );
             $ret = array('routeId' => $newId, 'content' => '插入成功！');
         }
@@ -35,6 +35,7 @@ class adminController extends appController
             $newId = edit_a_route(
                 $routeData['markers'],
                 $routeData['line'],
+                $_POST['routeName'],
                 $routeId
             );
             $ret = array('routeId' => $newId, 'content' => '修改成功！');

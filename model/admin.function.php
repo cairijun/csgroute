@@ -11,12 +11,12 @@ function add_a_route($markers, $points, $name) {
     return last_id();
 }
 
-function edit_a_route($markers, $points, $id) {
+function edit_a_route($markers, $points, $name, $id) {
     $markersJSON = json_encode($markers);
     $pointsJSON = json_encode($points);
     $sql = prepare(
-        "UPDATE `routes` SET `markers` = ?s, `points` = ?s, `mtime` = NOW() WHERE `id` = ?i",
-        array($markersJSON, $pointsJSON, $id));
+        "UPDATE `routes` SET `markers` = ?s, `points` = ?s, `name` = ?s, `mtime` = NOW() WHERE `id` = ?i",
+        array($markersJSON, $pointsJSON, $name, $id));
     run_sql($sql);
     return $id;
 }
