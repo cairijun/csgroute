@@ -41,7 +41,8 @@ function saveARoute() {
   //构建最终上传数据
   var _data = {
     routeData : JSON.stringify(_routeData),
-    routeId : $('.btn-group-vertical button.active').attr('routeId')
+    routeId : gLine.id,
+    routeName : gLine.name
   };
 
   $.post('?c=admin&a=ajax_save', _data, function(response) {
@@ -54,13 +55,13 @@ function saveARoute() {
     }).popover('show');
     window.setTimeout("$('#save').popover('hide')", 2000);
 
-    if(_data.routeId.charAt(0) == '#') {
-      $('.btn-group-vertical button.active').text(function(index, old) {
-        return '编号：' + responseObj.routeId + '|名称：' + old;
-      }).attr('routeId', responseObj.routeId);
+    if(_data.routeId == '#') {
+      $('.btn-group-vertical button.active').
+        data('id', responseObj.routeId);
+      gLine.id = responseObj.routeId;
     }
     else {
-      $('.btn-group-vertical button.active').attr('routeId', responseObj.routeId);
+      $('.btn-group-vertical button.active').data('id', responseObj.routeId);
     }
 
     setMode('normal');
@@ -71,8 +72,8 @@ function addARoute() {
   var _routeName = $('#routeName').val();
   //向列表插入新线路（线路Id用`# + 线路名称`表示，后端会区分insert还是update）
   $('<button type="button" style="text-align: left;padding-left: 8px;" class="btn btn-block"></button>').
-    attr('routeId', '#' + _routeName).
-    text(_routeName).
+    data('id', '#' + _routeName).
+    text('名称：' + _routeName).
     appendTo('.btn-group-vertical').
     button('toggle');
   regRoutesListEvents();//重新注册路线列表的事件
@@ -86,12 +87,15 @@ function addARoute() {
     strokeColor : $('#routeType .active').data('color'),
     map : map
   });
+  gLine.name = _routeName;
+  gLine.id = '#';
   regLineEvents(gLine);
   gInfoWindow = new google.maps.InfoWindow({});
 }
 
 function deleteARoute() {
-  var _routeIdToDelete = $('.btn-group-vertical button.active').attr('routeId');
+  //var _routeIdToDelete = $('.btn-group-vertical button.active').data('id');
+  var _routeIdToDelete = gLine.id;
   $.post('?c=admin&a=ajax_delete', {routeId : _routeIdToDelete}, function(response) {
     if($.parseJSON(response).code == 0) {
       clearMap();
@@ -100,10 +104,20 @@ function deleteARoute() {
   });
 }
 
+function editProperties() {
+  var _routeName = $('#routeName').val();
+  var _color = $('#routeType .active').data('color');
+  gLine.setOptions({strokeColor : _color});
+  gLine.name = _routeName;
+  $('.btn-group-vertical button.active').
+    data('name', _routeName).
+    text('名称：' + _routeName);
+}
+
 function regRoutesListEvents() {
   $('.btn-group-vertical button').off('.list').on('click.list', function() {
-    var routeIdToGo = $(this).attr('routeId');
-    var previousId = $('.btn-group-vertical button.active').attr('routeId');
+    var routeIdToGo = $(this).data('id');
+    var previousId = $('.btn-group-vertical button.active').data('id');
     if($('#save').hasClass('disabled')) {
       loadARoute(routeIdToGo);
       setMode('normal');
@@ -124,21 +138,39 @@ function regToolbarEvents() {
   $('#save').click(saveARoute);
 
   $('#reset').click(function() {
-    loadARoute($('.btn-group-vertical button.active').attr('routeId'), true);
+    loadARoute(gLine.id, true);
   });
 
   $('#edit').click(function() {
     setMode('edit');
   });
 
-  //插入和删除的动作不直接绑定到工具栏按钮的click上，而是绑定到popover的确认按钮上
-  var addPopoverDialog = '\
+  var propertiesDialogCommon = '\
   <input id="routeName" class="input-block-level" type="text" placeholder="线路名称">\
   <div id="routeType" class="btn-group" style="margin:0px 0px 10px" data-toggle="buttons-radio">\
     <button data-color="red" class="btn btn-small btn-danger active">管道光缆</button>\
     <button data-color="green" class="btn btn-small btn-success">架空ADSS</button>\
     <button data-color="yellow" class="btn btn-small btn-warning">架空OPGW</button>\
-  </div>\
+  </div>';
+
+  //修改属性对话框
+  var propertiesPopoverDialog = propertiesDialogCommon + '\
+  <a href="javascript:editProperties();$(\'#properties\').popover(\'hide\');" class="btn btn-primary">确定</a>\
+  <a href="javascript:$(\'#properties\').popover(\'hide\');" class="btn">取消</a>';
+  $('#properties').popover({
+    html : true,
+    placement : 'bottom',
+    title : '修改属性',
+    content : propertiesPopoverDialog
+  }).click(function() {
+    $('#mainGroup .popover').css('width', 'auto');
+    var originColor = gLine.strokeColor;
+    $('#routeType button[data-color="' + originColor + '"]').button('toggle');
+    $('#routeName').val(gLine.name);
+  });
+
+  //插入和删除的动作不直接绑定到工具栏按钮的click上，而是绑定到popover的确认按钮上
+  var addPopoverDialog = propertiesDialogCommon + '\
   <a href="javascript:addARoute();$(\'#add\').popover(\'hide\');" class="btn btn-primary">确定</a>\
   <a href="javascript:$(\'#add\').popover(\'hide\');" class="btn">取消</a>';
   $('#add').popover({

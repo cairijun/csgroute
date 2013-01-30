@@ -74,6 +74,8 @@ function drawARoute(line, markers, admin) {
     editable : admin,
     map : map
   });
+  gLine.name = line.name;
+  gLine.id = line.id;
   thePath = gLine.getPath();
   var i = 0;
   for(i = 0 ; i < line.path.length ; i++) {
@@ -158,7 +160,7 @@ function loadARoute(routeId, admin) {
   if(typeof(admin) == 'undefined') {
     admin = false;
   }
-  if(routeId.charAt(0) == '#') {
+  if(routeId == '#') {
     var color = gLine.strokeColor;//保存原线路颜色
     clearMap();//如果是新建线路，直接清除地图
     gLine = new google.maps.Polyline({
@@ -176,6 +178,8 @@ function loadARoute(routeId, admin) {
   }
   $.getJSON('?c=default&a=ajax_getroutes&route_id=' + routeId, function(data) {
     var line = data[0].line;
+    line.name = data[0].name;
+    line.id = data[0].id;
     var markers = data[0].markers;
     var startPoint = line.path[0];
     if(!startPoint && data[0].markers[0]) {
@@ -193,8 +197,13 @@ function loadARoute(routeId, admin) {
       map.setCenter(centerPoint);
     }
     drawARoute(line, markers, admin);
-    if(admin)
+    if(admin) {
       gAddMode = true;
+      //如果修改过属性，重置时列表可能不能及时恢复，所以要强制更新一下
+      $('.btn-group-vertical button.active').
+        text('名称：' + gLine.name).
+        data('name', gLine.name);
+    }
     else
       gAddMode = false;
   });

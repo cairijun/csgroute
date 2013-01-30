@@ -14,6 +14,7 @@
       <div class="btn-group" id="mainGroup">
         <button class="btn disabled" id="save">保存</button>
         <button class="btn disabled" id="reset">撤销</button>
+        <button class="btn disabled" id="properties">属性</button>
       </div>
       <div class="btn-group" id="editGroup">
         <button class="btn" id="edit">修改</button>
@@ -37,8 +38,8 @@
         <div class="btn-group btn-group-vertical" style="overflow-y: auto; height: 500px; width: 100%;" data-toggle="buttons-radio">
           <?php if(isset($routesList) && is_array($routesList)): ?>
           <?php foreach($routesList as $aRoute): ?>
-          <button type="button" style="text-align: left;padding-left: 8px;" class="btn btn-block" routeId="<?=$aRoute['id']?>">
-            编号：<?=$aRoute['id']?>|名称：<?=$aRoute['name']?></button>
+          <button type="button" style="text-align: left;padding-left: 8px;" class="btn btn-block" data-id="<?=$aRoute['id']?>" data-name="<?=$aRoute['name']?>">
+            名称：<?=$aRoute['name']?></button>
           <?php endforeach; ?>
           <?php endif; ?>
         </div>
