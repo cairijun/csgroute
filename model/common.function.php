@@ -22,9 +22,9 @@ function check_auth()
 
     $ts = $_COOKIE['TS'];
     $tl = $_COOKIE['TL'];
-    $ip = md5($_SERVER['REMOTE_ADDR']);
-    $ua = md5($_SERVER['HTTP_USER_AGENT']);
-    $userid = $_COOKIE['USERID'];
+    $ip = sha1($_SERVER['REMOTE_ADDR']);
+    $ua = sha1($_SERVER['HTTP_USER_AGENT']);
+    $userid = intval($_COOKIE['USERID']);
 
     $sql = prepare("SELECT * FROM `auth_tokens` WHERE `USERID` = ?i", array($userid));
     $tokens_array = get_line($sql);
@@ -39,7 +39,7 @@ function check_auth()
             {
                 if($ua == $tokens_array['UA'])
                 {
-                    reset_ts($userid);
+                    reset_ts($userid, true);
                     return true;
                 }
                 else
@@ -59,30 +59,56 @@ function check_auth()
         return false;
 }
 
-function reset_ts($userid)
+function reset_ts($userid, $update_cookie = false)
 {
-    $ts = md5(uniqid(mt_rand() . 'TS', true));
-    $ua = md5($_SERVER['HTTP_USER_AGENT']);
-    $ip = md5($_SERVER['REMOTE_ADDR']);
+    $ts = sha1(uniqid(mt_rand() . 'TS', true));
+    $ua = sha1($_SERVER['HTTP_USER_AGENT']);
+    $ip = sha1($_SERVER['REMOTE_ADDR']);
 
     $sql = prepare(
         "UPDATE `auth_tokens` SET `TS` = ?s, `UA` = ?s, `IP` = ?s WHERE `USERID` = ?i",
         array($ts, $ua, $ip, $userid));
     run_sql($sql);
-    setcookie('TS', $ts, time() + 604800, '/', null, false, true);
+    if($update_cookie)
+        setcookie('TS', $ts, time() + 604800, '', '', false, true);
 }
 
-function reset_all($userid)
+function reset_all($userid, $update_cookie = false)
 {
-    $ts = md5(uniqid(mt_rand() . 'TS', true));
-    $tl = md5(uniqid(mt_rand() . 'TL', true));
-    $ua = md5($_SERVER['HTTP_USER_AGENT']);
-    $ip = md5($_SERVER['REMOTE_ADDR']);
+    $ts = sha1(uniqid(mt_rand() . 'TS', true));
+    $tl = sha1(uniqid(mt_rand() . 'TL', true));
+    $ua = sha1($_SERVER['HTTP_USER_AGENT']);
+    $ip = sha1($_SERVER['REMOTE_ADDR']);
 
     $sql = prepare(
         "UPDATE `auth_tokens` SET `TS` = ?s, `TL` = ?s, `UA` = ?s, `IP` = ?s WHERE `USERID` = ?i",
         array($ts, $tl, $ua, $ip, $userid));
     run_sql($sql);
-    setcookie('TS', $ts, time() + 604800, '/', null, false, true);
-    setcookie('TL', $tl, time() + 604800, '/', null, false, true);
+    if($update_cookie)
+    {
+        setcookie('TS', $ts, time() + 604800, '', '', false, true);
+        setcookie('TL', $tl, time() + 604800, '', '', false, true);
+    }
+}
+
+function user_login($username, $passhash)
+{
+    $sql = prepare(
+        "SELECT * FROM `users` WHERE `username` = ?s",
+        array($username));
+    $data = get_line($sql);
+
+    //$passhash = sha1(sha1($password) + $username);
+    $_passhash = sha1($passhash);
+    $_passhash = sha1($passhash + $_passhash);
+    $_passhash = sha1($_passhash + $data['salt']);
+
+    if($_passhash == $data['passhash'])
+    {
+        setcookie('USERID', $data['id'], time() + 604800);
+        reset_all($data['id'], true);
+        return true;
+    }
+    else
+        return false;
 }

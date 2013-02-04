@@ -48,4 +48,18 @@ class adminController extends appController
         delete_a_route($routeId);
         ajax_echo(json_encode(array('code' => 0)));
     }
+
+    function ajax_add_user()
+    {
+        $username = $_POST['username'];
+        $passhash = $_POST['passhash'];
+        if(isset($_POST['permissions']))
+        {
+            $permissions = intval($_POST['permissions']);
+            ajax_echo(add_a_user($username, $passhash, $permissions));
+        }
+        else
+            ajax_echo(add_a_user($username, $passhash));
+
+    }
 }

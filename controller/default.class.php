@@ -28,6 +28,18 @@ class defaultController extends appController
             );
         return ajax_echo(json_encode($send_array));
     }
+
+    function ajax_login()
+    {
+        if(user_login($_POST['username'], $_POST['passhash']))
+            ajax_echo('OK');
+    }
+
+    function ajax_auth_test()
+    {
+        if(check_auth())
+            ajax_echo('PASS');
+    }
 	
 	function ajax_test()
 	{
