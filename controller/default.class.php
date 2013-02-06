@@ -13,6 +13,9 @@ class defaultController extends appController
 	{
 		$data['title'] = $data['top_title'] = '首页';
         $data['routesList'] = get_routes_list();
+        $data['auth'] = g('gAuth');
+        if(isset($_COOKIE['USERNAME']))
+            $data['username'] = $_COOKIE['USERNAME'];
 		render( $data );
 	}
 

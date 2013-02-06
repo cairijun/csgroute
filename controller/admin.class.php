@@ -14,6 +14,9 @@ class adminController extends appController
 		$data['title'] = $data['top_title'] = '管理首页';
         $data['routesList'] = get_routes_list();
         $data['js'] = array('admin.js');
+        $data['auth'] = g('gAuth');
+        if(isset($_COOKIE['USERNAME']))
+            $data['username'] = $_COOKIE['USERNAME'];
 		render( $data );
 	}
 
@@ -60,6 +63,5 @@ class adminController extends appController
         }
         else
             ajax_echo(add_a_user($username, $passhash));
-
     }
 }

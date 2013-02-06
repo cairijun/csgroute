@@ -39,8 +39,8 @@ function add_a_user($username, $passhash, $permissions = 10)
 
     $salt = sha1(uniqid());
     $_passhash = sha1($passhash);
-    $_passhash = sha1($passhash + $_passhash);
-    $_passhash = sha1($_passhash + $salt);
+    $_passhash = sha1($passhash . $_passhash);
+    $_passhash = sha1($_passhash . $salt);
 
     $sql = prepare(
         "INSERT INTO `users` (`username`, `passhash`, `salt`, `permissions`) VALUES (?s,?s,?s,?i)",
