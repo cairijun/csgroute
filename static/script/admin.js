@@ -64,6 +64,9 @@ function saveARoute() {
     }
 
     setMode('normal');
+  }).
+    fail(function() {
+    $('#authErrorModal').modal('toggle');
   });
 }
 
@@ -97,6 +100,9 @@ function deleteARoute() {
       clearMap();
       $('.btn-group-vertical button.active').remove();
     }
+  }).
+    fail(function() {
+    $('#authErrorModal').modal('toggle');
   });
 }
 

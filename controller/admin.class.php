@@ -11,6 +11,11 @@ class adminController extends appController
 	
 	function index()
 	{
+        if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
+        {
+            header('HTTP/1.1 403 Forbidden');
+            exit();
+        } 
 		$data['title'] = $data['top_title'] = '管理首页';
         $data['routesList'] = get_routes_list();
         $data['js'] = array('admin.js');
@@ -22,6 +27,11 @@ class adminController extends appController
 
     function ajax_save()
     {
+        if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
+        {
+            header('HTTP/1.1 403 Forbidden');
+            exit();
+        } 
         $routeData = json_decode($_POST['routeData'], true);
         $routeId = $_POST['routeId'];
         if(substr($routeId, 0, 1) == '#') {
@@ -47,6 +57,11 @@ class adminController extends appController
 
     function ajax_delete()
     {
+        if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
+        {
+            header('HTTP/1.1 403 Forbidden');
+            exit();
+        } 
         $routeId = $_POST['routeId'];
         delete_a_route($routeId);
         ajax_echo(json_encode(array('code' => 0)));
@@ -54,6 +69,11 @@ class adminController extends appController
 
     function ajax_add_user()
     {
+        if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 0))
+        {
+            header('HTTP/1.1 403 Forbidden');
+            exit();
+        } 
         $username = $_POST['username'];
         $passhash = $_POST['passhash'];
         if(isset($_POST['permissions']))

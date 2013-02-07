@@ -196,6 +196,9 @@ function loadARoute(routeId, admin) {
       gAddMode = true;
     else
       gAddMode = false;
+  }).
+    error(function() {
+    $('#authErrorModal').modal('toggle');
   });
 }
 

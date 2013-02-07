@@ -68,3 +68,11 @@ function add_a_user($username, $passhash, $permissions = 10)
 
     return $userid;
 }
+
+function check_permissions($userid, $permissions)
+{
+    $sql = prepare(
+        "SELECT `permissions` FROM `users` WHERE `id` = ?i",
+        array($userid));
+    return get_var($sql) <= $permissions;
+}
