@@ -44,8 +44,8 @@ class appController extends coreController
 
     function ajax_change_password()
     {
-        if(g('gAuth'))
-            if(change_password($_COOKIE['USERID'], $oldpasshash, $newpasshash))
+        if(g('gAuth') && isset($_POST['oldpasshash']) && isset($_POST['newpasshash']))
+            if(change_password($_COOKIE['USERID'], $_POST['oldpasshash'], $_POST['newpasshash']))
             {
                 ajax_echo(json_encode(
                     array(

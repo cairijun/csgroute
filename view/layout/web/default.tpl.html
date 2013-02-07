@@ -76,6 +76,40 @@
       </div>
     </div>
 
+    <div id="changePasswordModal" class="modal hide fade">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>修改密码</h3>
+      </div>
+      <div class="modal-body">
+        <div id="alertContainer"></div>
+        <form class="form-horizontal" id="changePasswordForm">
+          <div class="control-group">
+            <label class="control-label">旧密码</label>
+            <div class="controls">
+              <input class="input-xlarge" type="password" id="oldpassword">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">新密码</label>
+            <div class="controls">
+              <input class="input-xlarge" type="password" id="newpassword">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">重新输入新密码</label>
+            <div class="controls">
+              <input class="input-xlarge" type="password" id="repeatpassword">
+            </div>
+          </div>
+        </form>
+      </div>      
+      <div class="modal-footer">
+        <a href="javascript:post_new_password();" class="btn btn-primary">确定</a>
+        <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">取消</a>
+      </div>
+    </div>
+
     <script src="http://lib.sinaapp.com/js/jquery/1.7/jquery.min.js"></script>
     <script src="static/script/bootstrap.min.js"></script>
     <script src="static/script/sha1.js"></script>

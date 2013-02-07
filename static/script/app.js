@@ -27,7 +27,16 @@ $(document).ready(function() {
       }
     );
   });
+
+  $('#changePasswordModal').on('hide', function(){$('#alertContainer .alert').remove();});
 });
+
+function get_pass_hash(password, username) {
+    var _passhash = CryptoJS.SHA1(password);
+    _passhash = CryptoJS.SHA1(password + _passhash);
+    _passhash = CryptoJS.SHA1(username + _passhash);
+    return _passhash + '';
+}
 
 function logout() {
   $.get(
@@ -37,4 +46,55 @@ function logout() {
       $('#loginform').removeClass('navbar-hide');
     }
   );
+}
+
+function change_password() {
+  $('#changePasswordModal input').val('');
+  $('#changePasswordModal').modal('toggle');
+}
+
+function post_new_password() {
+  var inconsistentAlert = '\
+  <div id="inconsistentAlert" class="alert alert-error fade in">\
+  <button type="button" class="close" data-dismiss="alert">&times;</button>\
+  <strong>错误！</strong>新密码两次输入不一致。\
+  </div>';
+  var oldpasswordAlert = '\
+  <div id="oldPasswordAlert" class="alert alert-error fade in">\
+  <button type="button" class="close" data-dismiss="alert">&times;</button>\
+  <strong>错误！</strong>旧密码输入错误。\
+  </div>';
+  var successAlert = '\
+  <div id="successAlert" class="alert alert-success fade in">\
+  <button type="button" class="close" data-dismiss="alert">&times;</button>\
+  <strong>修改成功！</strong>请重新登录。\
+  </div>';
+
+  $('#alertContainer .alert').alert('close');
+  if($('#newpassword').val() != $('#repeatpassword').val()) {
+    $(inconsistentAlert).appendTo('#alertContainer');
+    $('#newpassword').focus();
+  }
+  else {
+    $.post(
+      '?c=app&a=ajax_change_password',
+      {
+        oldpasshash:get_pass_hash($('#oldpassword').val(), $('.dropdown span').text()),
+        newpasshash:get_pass_hash($('#newpassword').val(), $('.dropdown span').text())
+      },
+      function(d) {
+        var ret = $.parseJSON(d);
+        if(ret.errno == 0) {
+          $(successAlert).appendTo('#alertContainer');
+          setTimeout("$('#changePasswordModal').modal('hide');", 1500);
+          $('#usermenu').addClass('navbar-hide');
+          $('#loginform').removeClass('navbar-hide');
+        }
+        else if(ret.errno == -1) {
+          $(oldpasswordAlert).appendTo('#alertContainer');
+          $('#oldpassword').val('').focus();
+        }
+      }
+    );
+  }
 }
