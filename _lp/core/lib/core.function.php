@@ -115,7 +115,10 @@ function info_page( $info , $title = '系统消息' )
 		$layout = 'web';
 	
 	$data['top_title'] = $data['title'] = $title;
-	$data['info'] = $info;
+    $data['info'] = $info;
+    $data['auth'] = g('gAuth');
+    if(isset($_COOKIE['USERNAME']))
+        $data['username'] = $_COOKIE['USERNAME'];
 	
 	render( $data , $layout , 'info' );
 	

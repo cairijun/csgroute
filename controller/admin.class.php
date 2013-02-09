@@ -14,6 +14,7 @@ class adminController extends appController
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
         {
             header('HTTP/1.1 403 Forbidden');
+            info_page('您无权访问此页面！');
             exit();
         } 
 		$data['title'] = $data['top_title'] = '管理首页';
