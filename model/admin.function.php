@@ -86,7 +86,14 @@ function get_users_list()
 function delete_a_user($userid)
 {
     $sql = prepare(
+        "SELECT `permissions` FROM `users` WHERE `id` = ?i",
+        array($userid));
+    if(intval(get_var($sql)) == 0)
+        return false;
+
+    $sql = prepare(
         "DELETE FROM `users` WHERE `id` = ?i",
         array($userid));
     run_sql($sql);
+    return true;
 }

@@ -110,7 +110,9 @@ class adminController extends appController
             header('HTTP/1.1 403 Forbidden');
             exit();
         }
-        delete_a_user($_POST['userid']);
-        ajax_echo(json_encode(array('errno' => 0)));
+        if(delete_a_user($_POST['userid']))
+            ajax_echo(json_encode(array('errno' => 0)));
+        else
+            ajax_echo(json_encode(array('errno' => -1, 'msg' => '无法删除最高权限用户。')));
     }
 }

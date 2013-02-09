@@ -303,9 +303,15 @@ function regUserAdminEvent() {
 
 function delete_a_user_event_handler(userid, ensure) {
   if(ensure) {
-    $.post('?c=admin&a=ajax_delete_a_user', {userid:userid}, function() {
-      $('table tr[data-userid="' + userid + '"]').remove();
-      regUserAdminEvent();
+    $.post('?c=admin&a=ajax_delete_a_user', {userid:userid}, function(d) {
+      var data = $.parseJSON(d);
+      if(data.errno != 0) {
+        showErrorModal(data.msg);
+      }
+      else {
+        $('table tr[data-userid="' + userid + '"]').remove();
+        regUserAdminEvent();
+      }
     }).fail(function() {
       $('#addUser').popover('hide');
       showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
