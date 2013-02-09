@@ -206,6 +206,10 @@ function loadARoute(routeId, admin) {
     }
     else
       gAddMode = false;
+  }).
+    error(function() {
+    //$('#authErrorModal').modal('toggle');
+    showErrorModal('当前登录已失效，请重新登录再试。');
   });
 }
 

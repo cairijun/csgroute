@@ -65,6 +65,10 @@ function saveARoute() {
     }
 
     setMode('normal');
+  }).
+    fail(function() {
+    //$('#authErrorModal').modal('toggle');
+    showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
   });
 }
 
@@ -101,6 +105,10 @@ function deleteARoute() {
       clearMap();
       $('.btn-group-vertical button.active').remove();
     }
+  }).
+    fail(function() {
+    //$('#authErrorModal').modal('toggle');
+    showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
   });
 }
 
@@ -293,6 +301,103 @@ function setMode(mode) {
   }
 }
 
+//注册用户管理页面的事件
+function regUserAdminEvent() {
+  $('table .btn-group button.btn-danger').click(function() {
+    var userid = $(this).data('userid');
+    var popover = '\
+    <p class="text-error">您确认要删除这个用户吗？</p>\
+    <a href="javascript:delete_a_user_event_handler(\'' + userid + '\', true)" class="btn">确定</a>\
+    <a href="javascript:delete_a_user_event_handler(\'' + userid + '\', false)" class="btn btn-primary">取消</a>\
+    ';
+    $(this).
+      popover({html:true, placement:'bottom', trigger:'manual', title:'确认', content:popover}).
+      popover('show');
+  });
+
+  var popover = '\
+  <input id="newUsername" class="input-block-level" type="text" placeholder="用户名">\
+  <input id="newUserPassword" class="input-block-level" type="password" placeholder="密码">\
+  <input id="repeatPassword" class="input-block-level" type="password" placeholder="确认密码">\
+  <div id="newUserPermissions" class="btn-group" style="margin:0px 0px 10px; display: block;" data-toggle="buttons-radio">\
+  <button data-permissions="10" class="btn btn-mini active">查看线路</button>\
+  <button data-permissions="5" class="btn btn-mini btn-warning">修改线路</button>\
+  </div>\
+  <a href="javascript:addAUser();" class="btn btn-primary">确定</a>\
+  <a href="javascript:$(\'#addUser\').popover(\'hide\');" class="btn">取消</a>';
+  $('#addUser').popover({
+    html: true,
+    placement: 'bottom',
+    title: '添加用户',
+    content: popover
+  });
+}
+
+function delete_a_user_event_handler(userid, ensure) {
+  if(ensure) {
+    $.post('?c=admin&a=ajax_delete_a_user', {userid:userid}, function(d) {
+      var data = $.parseJSON(d);
+      if(data.errno != 0) {
+        showErrorModal(data.msg);
+      }
+      else {
+        $('table tr[data-userid="' + userid + '"]').remove();
+        regUserAdminEvent();
+      }
+    }).fail(function() {
+      $('#addUser').popover('hide');
+      showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
+    });
+  }
+  $('table button.btn-danger[data-userid="' + userid + '"]').popover('hide');
+}
+
+function addAUser() {
+  var username = $('#newUsername').val();
+  var password = $('#newUserPassword').val();
+  if(password != $('#repeatPassword').val()) {
+    $('#repeatPassword').val('').focus();
+    return;
+  }
+  var permissions = $('#newUserPermissions .active').data('permissions');
+  var passhash = get_pass_hash(password, username);
+  $.post(
+    '?c=admin&a=ajax_add_a_user',
+    {
+      username: username,
+      passhash: passhash,
+      permissions: permissions
+    },
+    function(d) {
+      var data = $.parseJSON(d);
+      if(data.errno != 0) {
+        $('#addUser').popover('hide');
+        showErrorModal(data.msg);
+        return;
+      }
+      var newid = data.msg;
+      var permissions_color = permissions < 10 ? ' class="warning"' : '';
+      var permissions_str = permissions < 10 ? '修改线路' : '查看线路';
+      var newUserRow = '\
+      <tr' + permissions_color + ' data-userid="' + newid + '">\
+      <td>' + newid + '</td>\
+      <td>' + username + '</td>\
+      <td>' + permissions_str + '</td>\
+      <td>\
+      <div class="btn-group">\
+      <button class="btn btn-danger btn-mini" data-userid="' + newid + '">删除用户</button>\
+      </div>\
+      </td>\
+      </tr>';
+      $(newUserRow).appendTo('#usersAdmin tbody');
+      regUserAdminEvent();
+      $('#addUser').popover('hide');
+    }
+  ).fail(function() {
+    $('#addUser').popover('hide');
+    showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
+  });
+}
 
 $(document).ready(function() {
   if(typeof(controller) != 'undefined' && controller == 'admin') {
@@ -307,5 +412,6 @@ $(document).ready(function() {
       }
     }
     $('a[href="#routesAdmin"]').on('shown', adminInit);
+    regUserAdminEvent();
   }
 });

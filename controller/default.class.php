@@ -13,11 +13,19 @@ class defaultController extends appController
 	{
 		$data['title'] = $data['top_title'] = '首页';
         $data['routesList'] = get_routes_list();
+        $data['auth'] = g('gAuth');
+        if(isset($_COOKIE['USERNAME']))
+            $data['username'] = $_COOKIE['USERNAME'];
 		render( $data );
 	}
 
     function ajax_getroutes()
     {
+        if(!g('gAuth'))
+        {
+            header('HTTP/1.1 403 Forbidden');
+            exit();
+        }
         $route = get_a_route_by_id($_GET['route_id']);
         $send_array = array();
         $send_array[0] =
@@ -28,6 +36,18 @@ class defaultController extends appController
                 'name' => $route['name']
             );
         return ajax_echo(json_encode($send_array));
+    }
+
+    function ajax_login()
+    {
+        if(user_login($_POST['username'], $_POST['passhash']))
+            ajax_echo('OK');
+    }
+
+    function ajax_auth_test()
+    {
+        if(check_auth())
+            ajax_echo('PASS');
     }
 	
 	function ajax_test()

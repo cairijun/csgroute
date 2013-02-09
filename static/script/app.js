@@ -1,100 +1,103 @@
-/*
-send form data via ajax and return the data to callback function 
-*/
-function send_form( name , func )
-{
-	var url = $('#'+name).attr('action');
-	
-	var params = {};
-	$.each( $('#'+name).serializeArray(), function(index,value) 
-	{
-		params[value.name] = value.value;
-	});
-	
-	
-	$.post( url , params , func );	
+$(document).ready(function() {
+  $('#loginform').submit(function(e) {
+    e.preventDefault();
+    var password = $('#password').val();
+    var _passhash = get_pass_hash(password, $('#username').val());
+    $.post(
+      '?c=app&a=ajax_login',
+      {
+        username: $('#username').val(),
+        passhash: _passhash + ''
+      },
+      function(d) {
+        var ret = JSON.parse(d);
+        if(ret.errno == 0) {
+          $('.dropdown span').text(ret.msg);
+          $('#loginform').addClass('navbar-hide');
+          $('#usermenu').removeClass('navbar-hide');
+        }
+        else {
+          $('#loginform button').popover(
+            {placement:'bottom', trigger:'manual', title:'错误', content:ret.msg}).
+            popover('show');
+            window.setTimeout("$('#loginform button').popover('hide')", 2000);
+        }
+      }
+    );
+  });
+
+  $('#changePasswordModal').on('hide', function(){$('#alertContainer .alert').remove();});
+});
+
+function get_pass_hash(password, username) {
+    var _passhash = CryptoJS.SHA1(password);
+    _passhash = CryptoJS.SHA1(username + _passhash);
+    _passhash = CryptoJS.SHA1(password + _passhash);
+    return _passhash + '';
 }
 
-/*
-send form data via ajax and show the return content to pop div 
-*/
-
-function send_form_pop( name )
-{
-	return send_form( name , function( data ){ show_pop_box( data ); } );
+function logout() {
+  $.get(
+    '?c=app&a=ajax_logout',
+    function() {
+      $('#usermenu').addClass('navbar-hide');
+      $('#loginform').removeClass('navbar-hide');
+    }
+  );
 }
 
-/*
-send form data via ajax and show the return content in front of the form 
-*/
-function send_form_in( name )
-{	
-	return send_form( name , function( data ){ set_form_notice( name , data ) } );
+function change_password() {
+  $('#changePasswordModal input').val('');
+  $('#changePasswordModal').modal('toggle');
 }
 
+function post_new_password() {
+  var inconsistentAlert = '\
+  <div id="inconsistentAlert" class="alert alert-error fade in">\
+  <button type="button" class="close" data-dismiss="alert">&times;</button>\
+  <strong>错误！</strong>新密码两次输入不一致。\
+  </div>';
+  var oldpasswordAlert = '\
+  <div id="oldPasswordAlert" class="alert alert-error fade in">\
+  <button type="button" class="close" data-dismiss="alert">&times;</button>\
+  <strong>错误！</strong>旧密码输入错误。\
+  </div>';
+  var successAlert = '\
+  <div id="successAlert" class="alert alert-success fade in">\
+  <button type="button" class="close" data-dismiss="alert">&times;</button>\
+  <strong>修改成功！</strong>请重新登录。\
+  </div>';
 
-function set_form_notice( name , data )
-{
-	data = '<span class="label label-important">' + data + '</span>';
-	
-	if( $('#form_'+name+'_notice').length != 0 )
-	{
-		$('#form_'+name+'_notice').html(data);
-	}
-	else
-	{
-		var odiv = $( "<div class='form_notice'></div>" );
-		odiv.attr( 'id' , 'form_'+name+'_notice' );
-		odiv.html(data);
-		$('#'+name).prepend( odiv );
-	} 
-	
+  $('#alertContainer .alert').alert('close');
+  if($('#newpassword').val() != $('#repeatpassword').val()) {
+    $(inconsistentAlert).appendTo('#alertContainer');
+    $('#newpassword').focus();
+  }
+  else {
+    $.post(
+      '?c=app&a=ajax_change_password',
+      {
+        oldpasshash:get_pass_hash($('#oldpassword').val(), $('.dropdown span').text()),
+        newpasshash:get_pass_hash($('#newpassword').val(), $('.dropdown span').text())
+      },
+      function(d) {
+        var ret = $.parseJSON(d);
+        if(ret.errno == 0) {
+          $(successAlert).appendTo('#alertContainer');
+          setTimeout("$('#changePasswordModal').modal('hide');", 1500);
+          $('#usermenu').addClass('navbar-hide');
+          $('#loginform').removeClass('navbar-hide');
+        }
+        else if(ret.errno == -1) {
+          $(oldpasswordAlert).appendTo('#alertContainer');
+          $('#oldpassword').val('').focus();
+        }
+      }
+    );
+  }
 }
 
-
-function show_pop_box( data , popid )
-{
-	if( popid == undefined ) popid = 'lp_pop_box'
-	//console.log($('#' + popid) );
-	if( $('#' + popid).length == 0 )
-	{
-		var did = $('<div><div id="' + 'lp_pop_container' + '"></div></div>');
-		did.attr( 'id' , popid );
-		did.css( 'display','none' );
-		$('body').prepend(did);
-	} 
-	
-	if( data != '' )
-		$('#lp_pop_container').html(data);
-	
-	var left = ($(window).width() - $('#' + popid ).width())/2;
-	
-	$('#' + popid ).css('left',left);
-	$('#' + popid ).css('display','block');
+function showErrorModal(msg) {
+  $('#modalErrorMsg').text(msg);
+  $('#errorModal').modal('show');
 }
-
-function hide_pop_box( popid )
-{
-	if( popid == undefined ) popid = 'lp_pop_box'
-	$('#' + popid ).css('display','none');
-}
-
-
-
-/* post demo
-$.post( 'url&get var'  , { 'post':'value'} , function( data )
-{
-	var data_obj = jQuery.parseJSON( data );
-	console.log( data_obj  );
-	
-	if( data_obj.err_code == 0  )
-	{
-					
-	}
-	else
-	{
-		
-	}	
-} );
-
-*/

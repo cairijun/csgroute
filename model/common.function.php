@@ -14,3 +14,4 @@ function get_routes_list() {
     $sql = "SELECT `id`,`name` FROM `routes` ORDER BY `visit` DESC";
     return get_data($sql);
 }
+

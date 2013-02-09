@@ -11,14 +11,29 @@ class adminController extends appController
 	
 	function index()
 	{
+        if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
+        {
+            header('HTTP/1.1 403 Forbidden');
+            info_page('您无权访问此页面！');
+            exit();
+        } 
 		$data['title'] = $data['top_title'] = '管理首页';
         $data['routesList'] = get_routes_list();
+        $data['usersList'] = get_users_list();
         $data['js'] = array('admin.js');
+        $data['auth'] = g('gAuth');
+        if(isset($_COOKIE['USERNAME']))
+            $data['username'] = $_COOKIE['USERNAME'];
 		render( $data );
 	}
 
     function ajax_save()
     {
+        if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
+        {
+            header('HTTP/1.1 403 Forbidden');
+            exit();
+        } 
         $routeData = json_decode($_POST['routeData'], true);
         $routeId = $_POST['routeId'];
         if($routeId == '#') {
@@ -45,8 +60,61 @@ class adminController extends appController
 
     function ajax_delete()
     {
+        if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
+        {
+            header('HTTP/1.1 403 Forbidden');
+            exit();
+        } 
         $routeId = $_POST['routeId'];
         delete_a_route($routeId);
         ajax_echo(json_encode(array('code' => 0)));
+    }
+
+    function ajax_add_a_user()
+    {
+        if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 0))
+        {
+            header('HTTP/1.1 403 Forbidden');
+            exit();
+        } 
+        $username = $_POST['username'];
+        $passhash = $_POST['passhash'];
+        $ret = false;
+        if(isset($_POST['permissions']))
+        {
+            $permissions = intval($_POST['permissions']);
+            $ret = add_a_user($username, $passhash, $permissions);
+        }
+        else
+            $ret = add_a_user($username, $passhash);
+        if($ret === false)
+        {
+            ajax_echo(json_encode(
+                array(
+                    'errno' => -1,
+                    'msg' => '用户名已存在！'
+                )));
+        }
+        else
+        {
+            ajax_echo(json_encode(
+                array(
+                    'errno' => 0,
+                    'msg' => intval($ret)
+                )));
+        }
+    }
+
+    function ajax_delete_a_user()
+    {
+        if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 0))
+        {
+            header('HTTP/1.1 403 Forbidden');
+            exit();
+        }
+        if(delete_a_user($_POST['userid']))
+            ajax_echo(json_encode(array('errno' => 0)));
+        else
+            ajax_echo(json_encode(array('errno' => -1, 'msg' => '无法删除最高权限用户。')));
     }
 }
