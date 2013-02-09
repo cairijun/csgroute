@@ -45,8 +45,55 @@
       </div>
     </div>
   </div>
-
+<?php
+function get_color($permissions)
+{
+    if($permissions == 0)
+        return ' class="error"';
+    if($permissions < 10)
+        return ' class="warning"';
+    return '';
+}
+function get_permissions_str($permissions)
+{
+    if($permissions == 0)
+        return '最高权限';
+    if($permissions < 10)
+        return '修改线路';
+    return '查看线路';
+}
+?>
   <div class="tab-pane" id="usersAdmin">
+    <div class="btn-group">
+      <button class="btn" id="addUser">添加用户</button>
+    </div>
+
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th class="span2">用户ID</th>
+          <th class="span3">用户名</th>
+          <th class="span2">用户权限</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php if(isset($usersList) && is_array($usersList)): ?>
+        <?php foreach($usersList as $aUser): ?>
+        <tr<?=get_color($aUser['permissions']);?> data-userid="<?=$aUser['id'];?>">
+          <td><?=$aUser['id'];?></td>
+          <td><?=$aUser['username'];?></td>
+          <td><?=get_permissions_str($aUser['permissions']);?></td>
+          <td>
+            <div class="btn-group">
+              <button class="btn btn-danger btn-mini" data-userid="<?=$aUser['id'];?>">删除用户</button>
+            </div>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+        <?php endif; ?>
+      </tbody>
+    </table>
   </div>
 
   <div class="tab-pane" id="logAdmin">

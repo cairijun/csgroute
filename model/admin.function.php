@@ -76,3 +76,17 @@ function check_permissions($userid, $permissions)
         array($userid));
     return get_var($sql) <= $permissions;
 }
+
+function get_users_list()
+{
+    $sql = "SELECT * FROM `users` ORDER BY `id`";
+    return get_data($sql);
+}
+
+function delete_a_user($userid)
+{
+    $sql = prepare(
+        "DELETE FROM `users` WHERE `id` = ?i",
+        array($userid));
+    run_sql($sql);
+}

@@ -2,9 +2,7 @@ $(document).ready(function() {
   $('#loginform').submit(function(e) {
     e.preventDefault();
     var password = $('#password').val();
-    var _passhash = CryptoJS.SHA1(password);
-    _passhash = CryptoJS.SHA1(password + _passhash);
-    _passhash = CryptoJS.SHA1($('#username').val() + _passhash);
+    var _passhash = get_pass_hash(password, $('#username').val());
     $.post(
       '?c=app&a=ajax_login',
       {
@@ -33,8 +31,8 @@ $(document).ready(function() {
 
 function get_pass_hash(password, username) {
     var _passhash = CryptoJS.SHA1(password);
-    _passhash = CryptoJS.SHA1(password + _passhash);
     _passhash = CryptoJS.SHA1(username + _passhash);
+    _passhash = CryptoJS.SHA1(password + _passhash);
     return _passhash + '';
 }
 
@@ -97,4 +95,9 @@ function post_new_password() {
       }
     );
   }
+}
+
+function showErrorModal(msg) {
+  $('#modalErrorMsg').text(msg);
+  $('#errorModal').modal('show');
 }

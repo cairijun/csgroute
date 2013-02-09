@@ -18,6 +18,7 @@ class adminController extends appController
         } 
 		$data['title'] = $data['top_title'] = '管理首页';
         $data['routesList'] = get_routes_list();
+        $data['usersList'] = get_users_list();
         $data['js'] = array('admin.js');
         $data['auth'] = g('gAuth');
         if(isset($_COOKIE['USERNAME']))
@@ -67,7 +68,7 @@ class adminController extends appController
         ajax_echo(json_encode(array('code' => 0)));
     }
 
-    function ajax_add_user()
+    function ajax_add_a_user()
     {
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 0))
         {
@@ -76,12 +77,40 @@ class adminController extends appController
         } 
         $username = $_POST['username'];
         $passhash = $_POST['passhash'];
+        $ret = false;
         if(isset($_POST['permissions']))
         {
             $permissions = intval($_POST['permissions']);
-            ajax_echo(add_a_user($username, $passhash, $permissions));
+            $ret = add_a_user($username, $passhash, $permissions);
         }
         else
-            ajax_echo(add_a_user($username, $passhash));
+            $ret = add_a_user($username, $passhash);
+        if($ret === false)
+        {
+            ajax_echo(json_encode(
+                array(
+                    'errno' => -1,
+                    'msg' => '用户名已存在！'
+                )));
+        }
+        else
+        {
+            ajax_echo(json_encode(
+                array(
+                    'errno' => 0,
+                    'msg' => intval($ret)
+                )));
+        }
+    }
+
+    function ajax_delete_a_user()
+    {
+        if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 0))
+        {
+            header('HTTP/1.1 403 Forbidden');
+            exit();
+        }
+        delete_a_user($_POST['userid']);
+        ajax_echo(json_encode(array('errno' => 0)));
     }
 }
