@@ -5,7 +5,7 @@
     <?php if(isset($routesList) && is_array($routesList)): ?>
       <?php foreach($routesList as $aRoute):?>
     <li><a href="#showRoute" data-toggle="tab" routeId="<?=$aRoute['id']?>">
-      编号：<?=$aRoute['id']?>|名称：<?=$aRoute['name']?></a></li>
+      <?=$aRoute['name']?></a></li>
       <?php endforeach; ?>
     <?php endif; ?>
   </ul>

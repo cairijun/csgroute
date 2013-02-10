@@ -39,7 +39,7 @@
           <?php if(isset($routesList) && is_array($routesList)): ?>
           <?php foreach($routesList as $aRoute): ?>
           <button type="button" style="text-align: left;padding-left: 8px;" class="btn btn-block" data-id="<?=$aRoute['id']?>" data-name="<?=$aRoute['name']?>">
-            名称：<?=$aRoute['name']?></button>
+            <?=$aRoute['name']?></button>
           <?php endforeach; ?>
           <?php endif; ?>
         </div>
