@@ -20,6 +20,7 @@ class appController extends coreController
         $passhash = $_POST['passhash'];
         if(user_login($username, $passhash))
         {
+            add_a_log('app.class.php:ajax_login():23', 'login_success', $username);
             ajax_echo(json_encode(
                 array(
                     'errno' => 0,
@@ -28,6 +29,7 @@ class appController extends coreController
         }
         else
         {
+            add_a_log('app.class.php:ajax_login():32', 'login_fail', $username);
             ajax_echo(json_encode(
                 array(
                     'errno' => -1,
@@ -47,6 +49,10 @@ class appController extends coreController
         if(g('gAuth') && isset($_POST['oldpasshash']) && isset($_POST['newpasshash']))
             if(change_password($_COOKIE['USERID'], $_POST['oldpasshash'], $_POST['newpasshash']))
             {
+                add_a_log(
+                    'app.class.php:ajax_change_password():52',
+                    'change_password_success',
+                    $_COOKIE['USERNAME']);
                 ajax_echo(json_encode(
                     array(
                         'errno' => 0,
@@ -54,6 +60,10 @@ class appController extends coreController
                     )));
             }
             else{
+                add_a_log(
+                    'app.class.php:ajax_change_password():64',
+                    'change_password_fail',
+                    $_COOKIE['USERNAME']);
                 ajax_echo(json_encode(
                     array(
                         'errno' => -1,
