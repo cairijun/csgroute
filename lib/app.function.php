@@ -36,6 +36,10 @@ function check_auth()
                 }
                 else
                 {
+                    add_a_log(
+                        'app.function.php:check_auth():39',
+                        'check_auth_error',
+                        $_COOKIE['USERNAME'] . ': UA-CHECK ERROR');
                     reset_all($userid);
                     return false;
                 }
@@ -43,6 +47,10 @@ function check_auth()
         }
         else
         {
+            add_a_log(
+                'app.function.php:check_auth():50',
+                'check_auth_error',
+                $_COOKIE['USERNAME'] . ': TS-CHECK ERROR');
             reset_all($userid);
             return false;
         }
@@ -125,4 +133,12 @@ function change_password($userid, $oldpasshash, $newpasshash)
     }
     else
         return false;
+}
+
+function add_a_log($position, $type, $content)
+{
+    $sql = prepare(
+        "INSERT INTO `log` (`position`, `type`, `ip`, `ua`, `content`) VALUES (?s, ?s, ?s, ?s, ?s)",
+        array($position, $type, $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'], $content));
+    run_sql($sql);
 }

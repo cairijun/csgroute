@@ -13,6 +13,10 @@ class adminController extends appController
 	{
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
         {
+            add_a_log(
+                'admin.class.php:index():16',
+                'Admin page error',
+                $_COOKIE['USERNAME']);
             header('HTTP/1.1 403 Forbidden');
             info_page('您无权访问此页面！');
             exit();
@@ -31,6 +35,10 @@ class adminController extends appController
     {
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
         {
+            add_a_log(
+                'admin.class.php:ajax_save():38',
+                'Save route error',
+                $_COOKIE['USERNAME']);
             header('HTTP/1.1 403 Forbidden');
             exit();
         } 
@@ -62,6 +70,10 @@ class adminController extends appController
     {
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
         {
+            add_a_log(
+                'admin.class.php:ajax_delete():73',
+                'Delete route error',
+                $_COOKIE['USERNAME']);
             header('HTTP/1.1 403 Forbidden');
             exit();
         } 
@@ -74,6 +86,10 @@ class adminController extends appController
     {
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 0))
         {
+            add_a_log(
+                'admin.class.php:ajax_add_a_user():89',
+                'Add user error',
+                $_COOKIE['USERNAME']);
             header('HTTP/1.1 403 Forbidden');
             exit();
         } 
@@ -109,6 +125,10 @@ class adminController extends appController
     {
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 0))
         {
+            add_a_user(
+                'admin.class.php:ajax_delete_a_user():128',
+                'Delete user error',
+                $_COOKIE['USERNAME']);
             header('HTTP/1.1 403 Forbidden');
             exit();
         }
