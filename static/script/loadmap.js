@@ -221,9 +221,44 @@ $(document).ready(function(){
       //routeId = +(routeId);
       loadARoute(routeId);
     }).on('shown', initMap);
+
+    gHideSide = false;
+
+    $('#showSide').mouseenter(function() {
+      if(gHideSide) {
+        $('.container-fluid div.span3').animate(
+          {left:0},
+          'fast');
+      }
+    });
+
+    $('.container-fluid div.span3').mouseleave(function() {
+      if(gHideSide) {
+        var sideWidth = $('.container-fluid div.span3').width();
+        $('.container-fluid div.span3').animate(
+          {left:-sideWidth},
+          'fast');
+      }
+    });
   }
 });
 
+//隐藏侧边栏
+function hideSide() {
+  if($('#showRoute').hasClass('active')) {
+    ;
+    $('.container-fluid div.span9').removeClass('span9').addClass('span11');
+    google.maps.event.trigger(map, 'resize');
+    $('.container-fluid div.span3').
+      css('position', 'absolute').
+      animate({left: -$('.container-fluid div.span3').width()}, 400,
+              function() {
+                $('.container-fluid div.hide').removeClass('hide');
+                gHideSide = true;
+              }
+             );
+  }
+}
 
 //自定义一个MarkerLabel叠加层
 function MarkerLabel(position, label, map) {

@@ -1,6 +1,6 @@
 <div class="well sidebar-nav">
   <ul class="nav nav-list" style="overflow-y: auto; height: 480px;">
-    <li class="nav-header">线路列表</li>
+    <li class="nav-header">线路列表<a class="pull-right" href="javascript:hideSide();" style="padding: 0px;"><i class="icon-chevron-left" style="margin: 0px;"></i></a></li>
     <li class="active"><a href="#summary" data-toggle="tab">概述</a></li>
     <?php if(isset($routesList) && is_array($routesList)): ?>
       <?php foreach($routesList as $aRoute):?>
