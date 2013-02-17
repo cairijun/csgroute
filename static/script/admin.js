@@ -399,6 +399,14 @@ function addAUser() {
   });
 }
 
+function adminSearchEventHandler() {
+  var keyword = $('#searchInput').val();
+  var selectorHide = 'div.btn-group-vertical button:not(:contains("' + keyword + '"))';
+  var selectorShow = 'div.btn-group-vertical button:contains("' + keyword + '")';
+  $(selectorHide).fadeOut('fast');
+  $(selectorShow).fadeIn('fast');
+}
+
 $(document).ready(function() {
   if(typeof(controller) != 'undefined' && controller == 'admin') {
     function adminInit() {
@@ -413,5 +421,7 @@ $(document).ready(function() {
     }
     $('a[href="#routesAdmin"]').on('shown', adminInit);
     regUserAdminEvent();
+
+    $('#searchInput').keyup(adminSearchEventHandler);
   }
 });
