@@ -221,9 +221,56 @@ $(document).ready(function(){
       //routeId = +(routeId);
       loadARoute(routeId);
     }).on('shown', initMap);
+
+    gHideSide = false;
+
+    $('#showSide').mouseenter(function() {
+      if(gHideSide) {
+        $('.container-fluid div.span3').animate(
+          {left:0},
+          'fast');
+      }
+    });
+
+    $('.container-fluid div.span3').mouseleave(function() {
+      if(gHideSide) {
+        var sideWidth = $('.container-fluid div.span3').width();
+        $('.container-fluid div.span3').animate(
+          {left:-sideWidth},
+          'fast');
+      }
+    });
   }
 });
 
+//控制侧边栏
+function toggleSide() {
+  if(!gHideSide) {//隐藏侧边栏
+    $('.container-fluid div.span9').removeClass('span9').addClass('span11');
+
+    if(typeof(map) != 'undefined' && map != null)
+      google.maps.event.trigger(map, 'resize');
+
+    $('.container-fluid div.span3').
+      css('position', 'absolute').
+      animate({left: -$('.container-fluid div.span3').width()}, 400,
+              function() {
+                $('#showSide').removeClass('hide');
+                gHideSide = true;
+              }
+             );
+  }
+  else {//显示侧边栏
+    $('.container-fluid div.span11').removeClass('span11').addClass('span9');
+
+    if(typeof(map) != 'undefined' && map != null)
+      google.maps.event.trigger(map, 'resize');
+
+    $('.container-fluid div.span3').css('position', 'static');
+    $('#showSide').addClass('hide');
+    gHideSide = false;
+  }
+}
 
 //自定义一个MarkerLabel叠加层
 function MarkerLabel(position, label, map) {

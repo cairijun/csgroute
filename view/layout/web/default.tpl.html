@@ -43,13 +43,18 @@
 
     <div class="container-fluid">
       <div class="row-fluid">
-        <div class="span3">
+        <div class="span3" style="z-index: 1;">
           <?php	
           $tfile = 'view' . DS . 'layout' . DS  . g('layout') . DS . 'side' . DS . g('c') . DS . g('a') . '.tpl.html';
           if( file_exists( AROOT . $tfile ) ) include( AROOT . $tfile );
           else @include( CROOT . $tfile );
           ?>
         </div><!--/span-->
+
+        <div id="showSide" class="hide" style="position: absolute; left: 0px; height: 480px; line-height: 480px;">
+          <i class="icon-chevron-right"></i>
+        </div>
+
         <div class="span9">
           <?php 
           $tfile = 'view' . DS . 'layout' . DS  . g('layout') . DS . 'main' . DS . g('c') . DS . g('a') . '.tpl.html';
