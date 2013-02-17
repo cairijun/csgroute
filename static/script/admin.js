@@ -143,14 +143,19 @@ function regRoutesListEvents() {
 }
 
 function regToolbarEvents() {
-  $('#save').click(saveARoute);
+  $('#save').click(function() {
+    if(!$(this).hasClass('disabled'))
+      saveARoute();
+  });
 
   $('#reset').click(function() {
-    loadARoute(gLine.id, true);
+    if(!$(this).hasClass('disabled'))
+      loadARoute(gLine.id, true);
   });
 
   $('#edit').click(function() {
-    setMode('edit');
+    if(!$(this).hasClass('disabled'))
+      setMode('edit');
   });
 
   var propertiesDialogCommon = '\
@@ -169,12 +174,16 @@ function regToolbarEvents() {
     html : true,
     placement : 'bottom',
     title : '修改属性',
-    content : propertiesPopoverDialog
+    content : propertiesPopoverDialog,
+    trigger : 'manual'
   }).click(function() {
-    $('#mainGroup .popover').css('width', 'auto');
-    var originColor = gLine.strokeColor;
-    $('#routeType button[data-color="' + originColor + '"]').button('toggle');
-    $('#routeName').val(gLine.name);
+    if(!$(this).hasClass('disabled')) {
+      $(this).popover('show');
+      $('#mainGroup .popover').css('width', 'auto');
+      var originColor = gLine.strokeColor;
+      $('#routeType button[data-color="' + originColor + '"]').button('toggle');
+      $('#routeName').val(gLine.name);
+    }
   });
 
   //插入和删除的动作不直接绑定到工具栏按钮的click上，而是绑定到popover的确认按钮上
@@ -185,8 +194,14 @@ function regToolbarEvents() {
     html : true,
     placement : 'bottom',
     title : '添加线路',
-    content : addPopoverDialog
-  }).click(function(){$('#editGroup .popover').css('width', 'auto');});//修正弹出框的宽度
+    content : addPopoverDialog,
+    trigger : 'manual'
+  }).click(function() {
+    if(!$(this).hasClass('disabled')) {
+      $(this).popover('show');
+      $('#editGroup .popover').css('width', 'auto');
+    }
+  });//修正弹出框的宽度
 
   var deletePopoverDialog = '\
   <p class="text-error">确定要删除这条线路吗？</p>\
@@ -196,7 +211,11 @@ function regToolbarEvents() {
     html : true,
     placement : 'bottom',
     title : '删除线路',
-    content : deletePopoverDialog
+    content : deletePopoverDialog,
+    trigger : 'manual'
+  }).click(function() {
+    if(!$(this).hasClass('disabled'))
+      $(this).popover('show');
   });
 }
 
