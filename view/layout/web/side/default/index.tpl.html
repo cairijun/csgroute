@@ -2,11 +2,18 @@
   <ul class="nav nav-list" style="overflow-y: auto; height: 480px;">
     <li class="nav-header">线路列表<a class="pull-right" href="javascript:toggleSide();" style="padding: 0px;"><i class="icon-chevron-left" style="margin: 0px;"></i></a></li>
     <li class="active"><a href="#summary" data-toggle="tab">概述</a></li>
+    <li class="divider"></li>
+    <li>
+    <div class="input-append" style="margin: 5px;">
+      <input id="searchInput" type="text">
+      <span class="add-on"><i class="icon-search"></i></span>
+    </div>
+    </li>
     <?php if(isset($routesList) && is_array($routesList)): ?>
-      <?php foreach($routesList as $aRoute):?>
+    <?php foreach($routesList as $aRoute):?>
     <li><a href="#showRoute" data-toggle="tab" routeId="<?=$aRoute['id']?>">
       <?=$aRoute['name']?></a></li>
-      <?php endforeach; ?>
+    <?php endforeach; ?>
     <?php endif; ?>
   </ul>
 </div><!--/.well -->
