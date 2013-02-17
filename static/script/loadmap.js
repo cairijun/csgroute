@@ -258,6 +258,7 @@ function searchEventHandler() {
 function toggleSide() {
   if(!gHideSide) {//隐藏侧边栏
     $('.container-fluid div.span9').removeClass('span9').addClass('span11');
+    $('#toggleSideIcon').removeClass('icon-chevron-left').addClass('icon-chevron-right');
 
     if(typeof(map) != 'undefined' && map != null)
       google.maps.event.trigger(map, 'resize');
@@ -273,6 +274,7 @@ function toggleSide() {
   }
   else {//显示侧边栏
     $('.container-fluid div.span11').removeClass('span11').addClass('span9');
+    $('#toggleSideIcon').removeClass('icon-chevron-right').addClass('icon-chevron-left');
 
     if(typeof(map) != 'undefined' && map != null)
       google.maps.event.trigger(map, 'resize');
