@@ -72,14 +72,14 @@ function get_permissions_str($permissions)
 ?>
   <div class="tab-pane" id="usersAdmin">
     <div class="btn-group">
-      <button class="btn" id="addUser">添加用户</button>
+      <button class="btn" id="addUser"><i class="icon-plus"></i>&nbsp;添加用户</button>
     </div>
 
     <table class="table table-hover">
       <thead>
         <tr>
-          <th class="span2">用户ID</th>
-          <th class="span3">用户名</th>
+          <th class="span1">ID</th>
+          <th class="span2">用户名</th>
           <th class="span2">用户权限</th>
           <th>操作</th>
         </tr>
@@ -93,7 +93,7 @@ function get_permissions_str($permissions)
           <td><?=get_permissions_str($aUser['permissions']);?></td>
           <td>
             <div class="btn-group">
-              <button class="btn btn-danger btn-mini" data-userid="<?=$aUser['id'];?>">删除用户</button>
+              <button class="btn btn-danger btn-mini" data-userid="<?=$aUser['id'];?>"><i class="icon-minus"></i>&nbsp;删除用户</button>
             </div>
           </td>
         </tr>
