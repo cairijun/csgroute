@@ -11,7 +11,7 @@
     </li>
     <?php if(isset($routesList) && is_array($routesList)): ?>
     <?php foreach($routesList as $aRoute):?>
-    <li><a href="#showRoute" data-toggle="tab" routeId="<?=$aRoute['id']?>">
+    <li class="routesListLi"><a href="#showRoute" data-toggle="tab" routeId="<?=$aRoute['id']?>">
       <?=$aRoute['name']?></a></li>
     <?php endforeach; ?>
     <?php endif; ?>

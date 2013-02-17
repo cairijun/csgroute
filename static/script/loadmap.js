@@ -240,8 +240,19 @@ $(document).ready(function(){
           'fast');
       }
     });
+
+    $('#searchInput').keyup(searchEventHandler);
   }
 });
+
+//首页搜索框事件处理程序
+function searchEventHandler() {
+  var keyword = $('#searchInput').val();
+  var selectorHide = 'li.routesListLi a:not(:contains("' + keyword + '"))';
+  var selectorShow = 'li.routesListLi a:contains("' + keyword + '")';
+  $(selectorHide).fadeOut('fast');
+  $(selectorShow).fadeIn('fast');
+}
 
 //控制侧边栏
 function toggleSide() {
