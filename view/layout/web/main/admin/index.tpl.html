@@ -1,5 +1,5 @@
 <div class="tab-content" style="overflow:visible">
-  <div class="hero-unit tab-pane active" style="height: 350px;" id="summary">
+  <div class="hero-unit tab-pane active" style="height: 400px;" id="summary">
     <h2>管理</h2>
     <p></p>
     运行日志查询功能未做好。<br>
@@ -14,23 +14,23 @@
         <div class="btn-toolbar">
           <!--工具栏-->
           <div class="btn-group" id="mainGroup">
-            <button class="btn disabled" id="save">保存</button>
-            <button class="btn disabled" id="reset">撤销</button>
-            <button class="btn disabled" id="properties">属性</button>
+            <button class="btn disabled" id="save"><i class="icon-hdd"></i>&nbsp;保存</button>
+            <button class="btn disabled" id="reset"><i class="icon-repeat"></i>&nbsp;撤销</button>
+            <button class="btn disabled" id="properties"><i class="icon-wrench"></i>&nbsp;属性</button>
           </div>
           <div class="btn-group" id="editGroup">
-            <button class="btn" id="edit">修改</button>
-            <button rel="popover" class="btn" id="add" data-trigger="click">添加</button>
-            <button rel="popover" class="btn" id="delete" data-trigger="click">删除</button>
+            <button class="btn" id="edit"><i class="icon-edit"></i>&nbsp;修改</button>
+            <button class="btn" id="add"><i class="icon-plus"></i>&nbsp;添加</button>
+            <button class="btn" id="delete"><i class="icon-minus"></i>&nbsp;删除</button>
           </div>
           <div class="btn-group" id="addGroup" data-toggle="buttons-radio">
-            <button type="button" class="btn active disabled" id="route">线路</button>
-            <button type="button" class="btn disabled" id="marker">锚点</button>
+            <button type="button" class="btn active disabled" id="route"><i class="icon-pencil"></i>&nbsp;线路</button>
+            <button type="button" class="btn disabled" id="marker"><i class="icon-map-marker"></i>&nbsp;锚点</button>
           </div>
         </div>
 
         <!--地图容器-->
-        <div style="width:100%;height:450px;" id="mapContainer"></div>
+        <div style="width:100%;height:500px;" id="mapContainer"></div>
       </div>
 
       <div class="span4">
@@ -70,16 +70,16 @@ function get_permissions_str($permissions)
     return '查看线路';
 }
 ?>
-  <div class="tab-pane" id="usersAdmin">
+  <div class="tab-pane" id="usersAdmin" style="min-height: 530px;">
     <div class="btn-group">
-      <button class="btn" id="addUser">添加用户</button>
+      <button class="btn" id="addUser"><i class="icon-plus"></i>&nbsp;添加用户</button>
     </div>
 
     <table class="table table-hover">
       <thead>
         <tr>
-          <th class="span2">用户ID</th>
-          <th class="span3">用户名</th>
+          <th class="span1">ID</th>
+          <th class="span2">用户名</th>
           <th class="span2">用户权限</th>
           <th>操作</th>
         </tr>
@@ -93,7 +93,7 @@ function get_permissions_str($permissions)
           <td><?=get_permissions_str($aUser['permissions']);?></td>
           <td>
             <div class="btn-group">
-              <button class="btn btn-danger btn-mini" data-userid="<?=$aUser['id'];?>">删除用户</button>
+              <button class="btn btn-danger btn-mini" data-userid="<?=$aUser['id'];?>"><i class="icon-minus"></i>&nbsp;删除用户</button>
             </div>
           </td>
         </tr>
