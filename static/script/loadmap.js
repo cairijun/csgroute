@@ -201,7 +201,7 @@ function loadARoute(routeId, admin) {
       gAddMode = true;
       //如果修改过属性，重置时列表可能不能及时恢复，所以要强制更新一下
       $('.btn-group-vertical button.active').
-        text('名称：' + gLine.name).
+        text(gLine.name).
         data('name', gLine.name);
     }
     else
