@@ -12,6 +12,13 @@ class appController extends coreController
 		parent::__construct();
 	}
 
+    function about()
+    {
+        $about_text = file_get_contents(AROOT . 'static' . DS . 'about.txt');
+        if(!($about_text === false))
+            info_page(nl2br($about_text), '关于');
+    }
+
 	// login check or something
 
     function ajax_login()
