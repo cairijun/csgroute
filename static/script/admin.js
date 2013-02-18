@@ -77,7 +77,7 @@ function addARoute() {
   //向列表插入新线路（线路Id用`# + 线路名称`表示，后端会区分insert还是update）
   $('<button type="button" style="text-align: left;padding-left: 8px;" class="btn btn-block"></button>').
     data('id', '#' + _routeName).
-    text('名称：' + _routeName).
+    text(_routeName).
     appendTo('.btn-group-vertical').
     button('toggle');
   regRoutesListEvents();//重新注册路线列表的事件
@@ -119,7 +119,7 @@ function editProperties() {
   gLine.name = _routeName;
   $('.btn-group-vertical button.active').
     data('name', _routeName).
-    text('名称：' + _routeName);
+    text(_routeName);
 }
 
 function regRoutesListEvents() {
@@ -154,7 +154,7 @@ function regToolbarEvents() {
   });
 
   $('#edit').click(function() {
-    if(!$(this).hasClass('disabled'))
+    if(!$(this).hasClass('disabled') && typeof(gLine) != 'undefined' && gLine != null)
       setMode('edit');
   });
 
@@ -214,7 +214,7 @@ function regToolbarEvents() {
     content : deletePopoverDialog,
     trigger : 'manual'
   }).click(function() {
-    if(!$(this).hasClass('disabled'))
+    if(!$(this).hasClass('disabled') && typeof(gLine) != 'undefined' && gLine != null)
       $(this).popover('show');
   });
 }
