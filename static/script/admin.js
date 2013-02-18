@@ -154,7 +154,7 @@ function regToolbarEvents() {
   });
 
   $('#edit').click(function() {
-    if(!$(this).hasClass('disabled'))
+    if(!$(this).hasClass('disabled') && typeof(gLine) != 'undefined' && gLine != null)
       setMode('edit');
   });
 
@@ -214,7 +214,7 @@ function regToolbarEvents() {
     content : deletePopoverDialog,
     trigger : 'manual'
   }).click(function() {
-    if(!$(this).hasClass('disabled'))
+    if(!$(this).hasClass('disabled') && typeof(gLine) != 'undefined' && gLine != null)
       $(this).popover('show');
   });
 }
