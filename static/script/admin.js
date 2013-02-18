@@ -441,6 +441,11 @@ $(document).ready(function() {
     $('a[href="#routesAdmin"]').on('shown', adminInit);
     regUserAdminEvent();
 
+    $('#addMarkerModal form').submit(function(e) {
+      e.preventDefault();
+      $('#addMarkerModal button.btn-primary').click();
+    });
+
     $('#searchInput').keyup(adminSearchEventHandler);
   }
 });
