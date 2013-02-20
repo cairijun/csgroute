@@ -404,7 +404,7 @@ function addAUser() {
       <td>' + permissions_str + '</td>\
       <td>\
       <div class="btn-group">\
-      <button class="btn btn-danger btn-mini" data-userid="' + newid + '">删除用户</button>\
+      <button class="btn btn-danger btn-mini" data-userid="' + newid + '"><i class="icon-minus"></i>&nbsp;删除用户</button>\
       </div>\
       </td>\
       </tr>';
