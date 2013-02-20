@@ -26,6 +26,7 @@ class adminController extends appController
         $data['usersList'] = get_users_list();
         $data['js'] = array('admin.js');
         $data['auth'] = g('gAuth');
+        $data['postToken'] = generate_post_token();
         if(isset($_COOKIE['USERNAME']))
             $data['username'] = $_COOKIE['USERNAME'];
 		render( $data );
@@ -42,6 +43,7 @@ class adminController extends appController
             header('HTTP/1.1 403 Forbidden');
             exit();
         } 
+        $newToken = anti_csrf(true);
         $routeData = json_decode($_POST['routeData'], true);
         $routeId = $_POST['routeId'];
         if($routeId == '#') {
@@ -51,7 +53,7 @@ class adminController extends appController
                 $routeData['line'],
                 $_POST['routeName']
             );
-            $ret = array('routeId' => $newId, 'content' => '插入成功！');
+            $ret = array('routeId' => $newId, 'content' => '插入成功！', 'token' => $newToken);
         }
         else {
             //修改线路
@@ -61,7 +63,7 @@ class adminController extends appController
                 $_POST['routeName'],
                 $routeId
             );
-            $ret = array('routeId' => $newId, 'content' => '修改成功！');
+            $ret = array('routeId' => $newId, 'content' => '修改成功！', 'token' => $newToken);
         }
         ajax_echo(json_encode($ret));
     }
@@ -77,9 +79,10 @@ class adminController extends appController
             header('HTTP/1.1 403 Forbidden');
             exit();
         } 
+        $newToken = anti_csrf(true);
         $routeId = $_POST['routeId'];
         delete_a_route($routeId);
-        ajax_echo(json_encode(array('code' => 0)));
+        ajax_echo(json_encode(array('code' => 0, 'token' => $newToken)));
     }
 
     function ajax_add_a_user()
@@ -93,6 +96,7 @@ class adminController extends appController
             header('HTTP/1.1 403 Forbidden');
             exit();
         } 
+        $newToken = anti_csrf(true);
         $username = $_POST['username'];
         $passhash = $_POST['passhash'];
         $ret = false;
@@ -108,7 +112,8 @@ class adminController extends appController
             ajax_echo(json_encode(
                 array(
                     'errno' => -1,
-                    'msg' => '用户名已存在！'
+                    'msg' => '用户名已存在！',
+                    'token' => $newToken
                 )));
         }
         else
@@ -116,7 +121,8 @@ class adminController extends appController
             ajax_echo(json_encode(
                 array(
                     'errno' => 0,
-                    'msg' => intval($ret)
+                    'msg' => intval($ret),
+                    'token' => $newToken
                 )));
         }
     }
@@ -132,9 +138,10 @@ class adminController extends appController
             header('HTTP/1.1 403 Forbidden');
             exit();
         }
+        $newToken = anti_csrf(true);
         if(delete_a_user($_POST['userid']))
-            ajax_echo(json_encode(array('errno' => 0)));
+            ajax_echo(json_encode(array('errno' => 0, 'token' => $newToken)));
         else
-            ajax_echo(json_encode(array('errno' => -1, 'msg' => '无法删除最高权限用户。')));
+            ajax_echo(json_encode(array('errno' => -1, 'msg' => '无法删除最高权限用户。', 'token' => $newToken)));
     }
 }

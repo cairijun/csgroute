@@ -142,3 +142,34 @@ function add_a_log($position, $type, $content)
         array($position, $type, $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'], $content));
     run_sql($sql);
 }
+
+function anti_csrf($check_token = false)
+{
+    //检查REFERER头
+    if(!isset($_SERVER['HTTP_REFERER']) || (stripos($_SERVER['HTTP_REFERER'], c('site_domain')) === false))
+        output_403();
+     
+    if($check_token)
+    {
+        $tmp = (isset($_SESSION['POST_TOKEN']) && isset($_POST['postToken']) && ($_SESSION['POST_TOKEN'] == $_POST['postToken']));
+        //检查令牌
+        if($tmp)
+            return generate_post_token();
+        output_403();
+    }
+}
+
+function output_403()
+{
+    header('HTTP/1.1 403 Forbidden');
+    exit();
+}
+
+function generate_post_token()
+{
+    if(!isset($_SESSION))
+        session_start();
+    $post_token = md5(mt_rand() + uniqid());
+    $_SESSION['POST_TOKEN'] = $post_token;
+    return $post_token;
+}
