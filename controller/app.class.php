@@ -17,6 +17,7 @@ class appController extends coreController
 
     function ajax_login()
     {
+        anti_csrf();
         $username = $_POST['username'];
         $passhash = $_POST['passhash'];
         if(user_login($username, $passhash))
@@ -41,12 +42,14 @@ class appController extends coreController
 
     function ajax_logout()
     {
+        anti_csrf();
         if(g('gAuth'))
             reset_all($_COOKIE['USERID']);
     }
 
     function ajax_change_password()
     {
+        anti_csrf();
         if(g('gAuth') && isset($_POST['oldpasshash']) && isset($_POST['newpasshash']))
             if(change_password($_COOKIE['USERID'], $_POST['oldpasshash'], $_POST['newpasshash']))
             {
