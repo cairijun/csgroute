@@ -42,7 +42,8 @@ function saveARoute() {
   var _data = {
     routeData : JSON.stringify(_routeData),
     routeId : gLine.id,
-    routeName : gLine.name
+    routeName : gLine.name,
+    postToken : $('#post-token').data('token')
   };
 
   $.post('?c=admin&a=ajax_save', _data, function(response) {
@@ -65,6 +66,8 @@ function saveARoute() {
     }
 
     setMode('normal');
+
+    $('#post-token').data('token', responseObj.token);
   }).
     fail(function() {
     //$('#authErrorModal').modal('toggle');
@@ -100,16 +103,20 @@ function addARoute() {
 function deleteARoute() {
   //var _routeIdToDelete = $('.btn-group-vertical button.active').data('id');
   var _routeIdToDelete = gLine.id;
-  $.post('?c=admin&a=ajax_delete', {routeId : _routeIdToDelete}, function(response) {
-    if($.parseJSON(response).code == 0) {
-      clearMap();
-      $('.btn-group-vertical button.active').remove();
-    }
-  }).
-    fail(function() {
-    //$('#authErrorModal').modal('toggle');
-    showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
-  });
+  $.post('?c=admin&a=ajax_delete',
+         {routeId : _routeIdToDelete, postToken : $('#post-token').data('token')},
+         function(response) {
+           responseObj = $.parseJSON(response);
+           if(responseObj.code == 0) {
+             clearMap();
+             $('.btn-group-vertical button.active').remove();
+             $('#post-token').data('token', responseObj.token);
+           }
+         }).
+           fail(function() {
+           //$('#authErrorModal').modal('toggle');
+           showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
+         });
 }
 
 function editProperties() {
@@ -354,8 +361,9 @@ function regUserAdminEvent() {
 
 function delete_a_user_event_handler(userid, ensure) {
   if(ensure) {
-    $.post('?c=admin&a=ajax_delete_a_user', {userid:userid}, function(d) {
+    $.post('?c=admin&a=ajax_delete_a_user', {userid:userid, postToken:$('#post-token').data('token')}, function(d) {
       var data = $.parseJSON(d);
+      $('#post-token').data('token', data.token);
       if(data.errno != 0) {
         showErrorModal(data.msg);
       }
@@ -385,10 +393,12 @@ function addAUser() {
     {
       username: username,
       passhash: passhash,
-      permissions: permissions
+      permissions: permissions,
+      postToken : $('#post-token').data('token')
     },
     function(d) {
       var data = $.parseJSON(d);
+      $('#post-token').data('token', data.token);
       if(data.errno != 0) {
         $('#addUser').popover('hide');
         showErrorModal(data.msg);
