@@ -35,7 +35,7 @@ class defaultController extends appController
                 'id' => $route['id'],
                 'name' => $route['name']
             );
-        return ajax_echo(json_encode($send_array));
+        return ajax_echo(encrypt_transfer_data(json_encode($send_array)));
     }
 
     function ajax_login()

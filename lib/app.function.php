@@ -142,3 +142,21 @@ function add_a_log($position, $type, $content)
         array($position, $type, $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'], $content));
     run_sql($sql);
 }
+
+function encrypt_transfer_data($data, $key = null)
+{
+    if($key == null && isset($_SESSION['KEY']))
+        $key = $_SESSION['KEY'];
+    else
+    {
+        //加密密钥未设置，禁止数据传输
+        header('HTTP/1.1 403 Forbidden');
+        exit();
+    }
+
+    $iv = substr(md5(uniqid(mt_rand() . '', true)), 0, 16);
+    $encrypted_data = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $key, $data, MCRYPT_MODE_CBC, $iv);
+
+    //把IV拼接在BASE64编码的加密数据前
+    return $iv . base64_encode($encrypted_data);
+}
