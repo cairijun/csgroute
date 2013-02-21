@@ -400,7 +400,7 @@ function addAUser() {
       var newUserRow = '\
       <tr' + permissions_color + ' data-userid="' + newid + '">\
       <td>' + newid + '</td>\
-      <td>' + username + '</td>\
+      <td>' + xssf(username) + '</td>\
       <td>' + permissions_str + '</td>\
       <td>\
       <div class="btn-group">\
