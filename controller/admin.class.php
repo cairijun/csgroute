@@ -125,7 +125,7 @@ class adminController extends appController
     {
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 0))
         {
-            add_a_user(
+            add_a_log(
                 'admin.class.php:ajax_delete_a_user():128',
                 'Delete user error',
                 $_COOKIE['USERNAME']);
