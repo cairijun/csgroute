@@ -1,4 +1,12 @@
 <?php
+function xssf($data, $is_json = false)
+{
+    if($is_json)
+        return htmlspecialchars($data, ENT_NOQUOTES | ENT_HTML401, 'UTF-8');
+    else
+        return htmlspecialchars($data, ENT_COMPAT | ENT_HTML401, 'UTF-8');
+}
+
 function pass_hash($passhash, $salt)
 {
     $_passhash = sha1($passhash);

@@ -2,8 +2,8 @@
 include(AROOT . 'model' . DS . 'common.function.php');
 
 function add_a_route($markers, $points, $name) {
-    $markersJSON = json_encode($markers);
-    $pointsJSON = json_encode($points);
+    $markersJSON = xssf(json_encode($markers), true);
+    $pointsJSON = xssf(json_encode($points), true);
     $sql = prepare(
         "INSERT INTO `routes` (`markers`,`points`,`name`,`mtime`) VALUES (?s,?s,?s,NOW())",
         array($markersJSON, $pointsJSON, $name));
@@ -12,8 +12,8 @@ function add_a_route($markers, $points, $name) {
 }
 
 function edit_a_route($markers, $points, $name, $id) {
-    $markersJSON = json_encode($markers);
-    $pointsJSON = json_encode($points);
+    $markersJSON = xssf(json_encode($markers), true);
+    $pointsJSON = xssf(json_encode($points), true);
     $sql = prepare(
         "UPDATE `routes` SET `markers` = ?s, `points` = ?s, `name` = ?s, `mtime` = NOW() WHERE `id` = ?i",
         array($markersJSON, $pointsJSON, $name, $id));
