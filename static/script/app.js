@@ -108,7 +108,6 @@ function getKey() {
   if(key == null) {
     //sessionStorage中没有密钥，生成一个新的并通知服务器
     key = CryptoJS.lib.WordArray.random(24).toString(CryptoJS.enc.Base64);
-    window.sessionStorage.setItem('KEY', key);
     $.post(
       '?c=app&a=ajax_set_key',
       {
@@ -118,6 +117,8 @@ function getKey() {
         responseObj = $.parseJSON(data);
         if(responseObj.code != 0)
           return false;
+        else
+          window.sessionStorage.setItem('KEY', key);
       }
     );
   }
@@ -130,7 +131,8 @@ function rsaEncrypt(data) {
   var publicE = '10001';
   var rsaObj = new RSAKey();
   rsaObj.setPublic(modulus, publicE);
-  return CryptoJS.enc.Base64.stringify(rsaObj.encrypt(data));
+  var hexData = rsaObj.encrypt(data);
+  return CryptoJS.enc.Hex.parse(hexData).toString(CryptoJS.enc.Base64);
 }
 
 //解密服务器中返回的加密数据并解析成对象
