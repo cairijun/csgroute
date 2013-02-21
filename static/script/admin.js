@@ -259,7 +259,7 @@ function regMapEvents() {
         window.setTimeout(function() {
           callbackableModal('#addMarkerModal', function() {
             _marker.setTitle($('#markerTitle').val());
-            _marker.content = $('#markerContent').val();
+            _marker.content = $('#markerContent').val().replace('\n', '<br />');
             _marker.index = gMarkersArray.length;
  
             //创建对应的Label
@@ -342,7 +342,7 @@ function regUserAdminEvent() {
   });
 
   var popover = '\
-  <input id="newUsername" class="input-block-level" type="text" placeholder="用户名">\
+  <input id="newUsername" class="input-block-level" type="text" placeholder="用户名(32字内，不含&quot;&<>)">\
   <input id="newUserPassword" class="input-block-level" type="password" placeholder="密码">\
   <input id="repeatPassword" class="input-block-level" type="password" placeholder="确认密码">\
   <div id="newUserPermissions" class="btn-group" style="margin:0px 0px 10px; display: block;" data-toggle="buttons-radio">\
@@ -386,6 +386,10 @@ function addAUser() {
     $('#repeatPassword').val('').focus();
     return;
   }
+  if(username.length > 32 || username.search(/[&<>\"]/) >= 0) {
+    $('#newUsername').val('').focus();
+    return;
+  }
   var permissions = $('#newUserPermissions .active').data('permissions');
   var passhash = get_pass_hash(password, username);
   $.post(
@@ -410,7 +414,7 @@ function addAUser() {
       var newUserRow = '\
       <tr' + permissions_color + ' data-userid="' + newid + '">\
       <td>' + newid + '</td>\
-      <td>' + username + '</td>\
+      <td>' + xssf(username) + '</td>\
       <td>' + permissions_str + '</td>\
       <td>\
       <div class="btn-group">\

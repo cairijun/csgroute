@@ -97,6 +97,21 @@ function post_new_password() {
   }
 }
 
+function xssf(data) {
+  return data.replace(/[&\"<>]/g, function(c) {
+    switch(c) {
+      case '&':
+        return '&amp;';
+      case '"':
+        return '&quot;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+    }
+  });
+}
+
 function showErrorModal(msg) {
   $('#modalErrorMsg').text(msg);
   $('#errorModal').modal('show');

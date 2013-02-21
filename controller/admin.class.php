@@ -28,7 +28,7 @@ class adminController extends appController
         $data['auth'] = g('gAuth');
         $data['postToken'] = generate_post_token();
         if(isset($_COOKIE['USERNAME']))
-            $data['username'] = $_COOKIE['USERNAME'];
+            $data['username'] = xssf($_COOKIE['USERNAME']);
 		render( $data );
 	}
 
@@ -51,7 +51,7 @@ class adminController extends appController
             $newId = add_a_route(
                 $routeData['markers'],
                 $routeData['line'],
-                $_POST['routeName']
+                xssf($_POST['routeName'])
             );
             $ret = array('routeId' => $newId, 'content' => '插入成功！', 'token' => $newToken);
         }
@@ -60,7 +60,7 @@ class adminController extends appController
             $newId = edit_a_route(
                 $routeData['markers'],
                 $routeData['line'],
-                $_POST['routeName'],
+                xssf($_POST['routeName']),
                 $routeId
             );
             $ret = array('routeId' => $newId, 'content' => '修改成功！', 'token' => $newToken);
@@ -97,8 +97,8 @@ class adminController extends appController
             exit();
         } 
         $newToken = anti_csrf(true);
-        $username = $_POST['username'];
-        $passhash = $_POST['passhash'];
+        $username = xssf($_POST['username']);
+        $passhash = xssf($_POST['passhash']);
         $ret = false;
         if(isset($_POST['permissions']))
         {
