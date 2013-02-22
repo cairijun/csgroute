@@ -40,13 +40,14 @@ function saveARoute() {
 
   //构建最终上传数据
   var _data = {
-    routeData : JSON.stringify(_routeData),
+    routeData : _routeData,
     routeId : gLine.id,
-    routeName : gLine.name
+    routeName : gLine.name,
+    postToken : $('#post-token').data('token')
   };
 
-  $.post('?c=admin&a=ajax_save', _data, function(response) {
-    responseObj = $.parseJSON(response);
+  //$.post('?c=admin&a=ajax_save', _data, function(response) {
+  encryptedPost('?c=admin&a=ajax_save', _data, function(responseObj) {
     $('#save').popover({
       placement : 'bottom',
       trigger : 'manual',
@@ -65,8 +66,9 @@ function saveARoute() {
     }
 
     setMode('normal');
-  }).
-    fail(function() {
+
+    $('#post-token').data('token', responseObj.token);
+  }, function() {
     //$('#authErrorModal').modal('toggle');
     showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
   });
@@ -100,16 +102,20 @@ function addARoute() {
 function deleteARoute() {
   //var _routeIdToDelete = $('.btn-group-vertical button.active').data('id');
   var _routeIdToDelete = gLine.id;
-  $.post('?c=admin&a=ajax_delete', {routeId : _routeIdToDelete}, function(response) {
-    if($.parseJSON(response).code == 0) {
-      clearMap();
-      $('.btn-group-vertical button.active').remove();
-    }
-  }).
-    fail(function() {
-    //$('#authErrorModal').modal('toggle');
-    showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
-  });
+  encryptedPost(
+    '?c=admin&a=ajax_delete',
+    {routeId : _routeIdToDelete, postToken : $('#post-token').data('token')},
+    function(responseObj) {
+      if(responseObj.code == 0) {
+        clearMap();
+        $('.btn-group-vertical button.active').remove();
+        $('#post-token').data('token', responseObj.token);
+      }
+    },
+    function() {
+      //$('#authErrorModal').modal('toggle');
+      showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
+    });
 }
 
 function editProperties() {
@@ -252,7 +258,7 @@ function regMapEvents() {
         window.setTimeout(function() {
           callbackableModal('#addMarkerModal', function() {
             _marker.setTitle($('#markerTitle').val());
-            _marker.content = $('#markerContent').val();
+            _marker.content = $('#markerContent').val().replace('\n', '<br />');
             _marker.index = gMarkersArray.length;
  
             //创建对应的Label
@@ -335,7 +341,7 @@ function regUserAdminEvent() {
   });
 
   var popover = '\
-  <input id="newUsername" class="input-block-level" type="text" placeholder="用户名">\
+  <input id="newUsername" class="input-block-level" type="text" placeholder="用户名(32字内，不含&quot;&<>)">\
   <input id="newUserPassword" class="input-block-level" type="password" placeholder="密码">\
   <input id="repeatPassword" class="input-block-level" type="password" placeholder="确认密码">\
   <div id="newUserPermissions" class="btn-group" style="margin:0px 0px 10px; display: block;" data-toggle="buttons-radio">\
@@ -354,19 +360,22 @@ function regUserAdminEvent() {
 
 function delete_a_user_event_handler(userid, ensure) {
   if(ensure) {
-    $.post('?c=admin&a=ajax_delete_a_user', {userid:userid}, function(d) {
-      var data = $.parseJSON(d);
-      if(data.errno != 0) {
-        showErrorModal(data.msg);
-      }
-      else {
-        $('table tr[data-userid="' + userid + '"]').remove();
-        regUserAdminEvent();
-      }
-    }).fail(function() {
-      $('#addUser').popover('hide');
-      showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
-    });
+    encryptedPost(
+      '?c=admin&a=ajax_delete_a_user',
+      {userid:userid, postToken:$('#post-token').data('token')},
+      function(data) {
+        $('#post-token').data('token', data.token);
+        if(data.errno != 0) {
+          showErrorModal(data.msg);
+        }
+        else {
+          $('table tr[data-userid="' + userid + '"]').remove();
+          regUserAdminEvent();
+        }
+      },function() {
+        $('#addUser').popover('hide');
+        showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
+      });
   }
   $('table button.btn-danger[data-userid="' + userid + '"]').popover('hide');
 }
@@ -378,17 +387,22 @@ function addAUser() {
     $('#repeatPassword').val('').focus();
     return;
   }
+  if(username.length > 32 || username.search(/[&<>\"]/) >= 0) {
+    $('#newUsername').val('').focus();
+    return;
+  }
   var permissions = $('#newUserPermissions .active').data('permissions');
   var passhash = get_pass_hash(password, username);
-  $.post(
+  encryptedPost(
     '?c=admin&a=ajax_add_a_user',
     {
       username: username,
       passhash: passhash,
-      permissions: permissions
+      permissions: permissions,
+      postToken : $('#post-token').data('token')
     },
-    function(d) {
-      var data = $.parseJSON(d);
+    function(data) {
+      $('#post-token').data('token', data.token);
       if(data.errno != 0) {
         $('#addUser').popover('hide');
         showErrorModal(data.msg);
@@ -400,22 +414,22 @@ function addAUser() {
       var newUserRow = '\
       <tr' + permissions_color + ' data-userid="' + newid + '">\
       <td>' + newid + '</td>\
-      <td>' + username + '</td>\
+      <td>' + xssf(username) + '</td>\
       <td>' + permissions_str + '</td>\
       <td>\
       <div class="btn-group">\
-      <button class="btn btn-danger btn-mini" data-userid="' + newid + '">删除用户</button>\
+      <button class="btn btn-danger btn-mini" data-userid="' + newid + '"><i class="icon-minus"></i>&nbsp;删除用户</button>\
       </div>\
       </td>\
       </tr>';
       $(newUserRow).appendTo('#usersAdmin tbody');
       regUserAdminEvent();
       $('#addUser').popover('hide');
-    }
-  ).fail(function() {
-    $('#addUser').popover('hide');
-    showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
-  });
+    },
+    function() {
+      $('#addUser').popover('hide');
+      showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
+    });
 }
 
 function adminSearchEventHandler() {
@@ -435,11 +449,16 @@ $(document).ready(function() {
         regToolbarEvents();
         regMapEvents();
         gAddMode = false;
-        var isAdminInit = true;
+        isAdminInit = true;
       }
     }
     $('a[href="#routesAdmin"]').on('shown', adminInit);
     regUserAdminEvent();
+
+    $('#addMarkerModal form').submit(function(e) {
+      e.preventDefault();
+      $('#addMarkerModal button.btn-primary').click();
+    });
 
     $('#searchInput').keyup(adminSearchEventHandler);
   }
