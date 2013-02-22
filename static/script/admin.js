@@ -435,7 +435,7 @@ $(document).ready(function() {
         regToolbarEvents();
         regMapEvents();
         gAddMode = false;
-        var isAdminInit = true;
+        isAdminInit = true;
       }
     }
     $('a[href="#routesAdmin"]').on('shown', adminInit);
