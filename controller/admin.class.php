@@ -72,6 +72,7 @@ class adminController extends appController
 
     function ajax_delete()
     {
+        $_POST = parse_encrypted_post();
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
         {
             add_a_log(
@@ -84,11 +85,12 @@ class adminController extends appController
         $newToken = anti_csrf(true);
         $routeId = $_POST['routeId'];
         delete_a_route($routeId);
-        ajax_echo(json_encode(array('code' => 0, 'token' => $newToken)));
+        ajax_echo(encrypt_transfer_data(json_encode(array('code' => 0, 'token' => $newToken))));
     }
 
     function ajax_add_a_user()
     {
+        $_POST = parse_encrypted_post();
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 0))
         {
             add_a_log(
@@ -111,26 +113,27 @@ class adminController extends appController
             $ret = add_a_user($username, $passhash);
         if($ret === false)
         {
-            ajax_echo(json_encode(
+            ajax_echo(encrypt_transfer_data(json_encode(
                 array(
                     'errno' => -1,
                     'msg' => '用户名已存在！',
                     'token' => $newToken
-                )));
+                ))));
         }
         else
         {
-            ajax_echo(json_encode(
+            ajax_echo(encrypt_transfer_data(json_encode(
                 array(
                     'errno' => 0,
                     'msg' => intval($ret),
                     'token' => $newToken
-                )));
+                ))));
         }
     }
 
     function ajax_delete_a_user()
     {
+        $_POST = parse_encrypted_post();
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 0))
         {
             add_a_user(
@@ -142,8 +145,12 @@ class adminController extends appController
         }
         $newToken = anti_csrf(true);
         if(delete_a_user($_POST['userid']))
-            ajax_echo(json_encode(array('errno' => 0, 'token' => $newToken)));
+            ajax_echo(encrypt_transfer_data(json_encode(array('errno' => 0, 'token' => $newToken))));
         else
-            ajax_echo(json_encode(array('errno' => -1, 'msg' => '无法删除最高权限用户。', 'token' => $newToken)));
+            ajax_echo(
+                encrypt_transfer_data(
+                    json_encode(
+                        array('errno' => -1, 'msg' => '无法删除最高权限用户。', 'token' => $newToken)
+                    )));
     }
 }
