@@ -1,4 +1,12 @@
 <?php
+function xssf($data, $is_json = false)
+{
+    if($is_json)
+        return htmlspecialchars($data, ENT_NOQUOTES | ENT_HTML401, 'UTF-8', false);
+    else
+        return htmlspecialchars($data, ENT_COMPAT | ENT_HTML401, 'UTF-8', false);
+}
+
 function pass_hash($passhash, $salt)
 {
     $_passhash = sha1($passhash);
@@ -141,4 +149,74 @@ function add_a_log($position, $type, $content)
         "INSERT INTO `log` (`position`, `type`, `ip`, `ua`, `content`) VALUES (?s, ?s, ?s, ?s, ?s)",
         array($position, $type, $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'], $content));
     run_sql($sql);
+}
+
+function anti_csrf($check_token = false)
+{
+    //检查REFERER头
+    if(!isset($_SERVER['HTTP_REFERER']) || (stripos($_SERVER['HTTP_REFERER'], c('site_domain')) === false))
+        output_403();
+     
+    if($check_token)
+    {
+        $tmp = (isset($_SESSION['POST_TOKEN']) && isset($_POST['postToken']) && ($_SESSION['POST_TOKEN'] == $_POST['postToken']));
+        //检查令牌
+        if($tmp)
+            return generate_post_token();
+        output_403();
+    }
+}
+
+function output_403()
+{
+    header('HTTP/1.1 403 Forbidden');
+    exit();
+}
+
+function generate_post_token()
+{
+    if(!isset($_SESSION))
+        session_start();
+    $post_token = md5(mt_rand() + uniqid());
+    $_SESSION['POST_TOKEN'] = $post_token;
+    return $post_token;
+}
+
+function encrypt_transfer_data($data, $key = null)
+{
+    if($key == null && isset($_SESSION['KEY']))
+        $key = $_SESSION['KEY'];
+    else
+    {
+        //加密密钥未设置，禁止数据传输
+        header('HTTP/1.1 403 Forbidden');
+        exit();
+    }
+
+    $iv = substr(md5(uniqid(mt_rand() . '', true)), 0, 16);
+    $encrypted_data = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $key, $data, MCRYPT_MODE_CBC, $iv);
+
+    //把IV拼接在BASE64编码的加密数据前
+    return $iv . base64_encode($encrypted_data);
+}
+
+function parse_encrypted_post($key = null)
+{
+    if($key == null && isset($_SESSION['KEY']))
+        $key = $_SESSION['KEY'];
+    else
+    {
+        //加密密钥未设置，禁止数据传输
+        header('HTTP/1.1 403 Forbidden');
+        exit();
+    }
+
+    if(isset($_POST['data']))
+    {
+        $iv = substr($_POST['data'], 0, 16);
+        $encrypted_data = base64_decode(substr($_POST['data'], 16));
+        $original_data = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key, $encrypted_data, MCRYPT_MODE_CBC, $iv);
+        $original_data = trim($original_data);//解密后的数据有时会多出一些不可见字符
+        return json_decode($original_data, true);
+    }
 }

@@ -26,6 +26,7 @@ class defaultController extends appController
             header('HTTP/1.1 403 Forbidden');
             exit();
         }
+        anti_csrf();
         $route = get_a_route_by_id($_GET['route_id']);
         $send_array = array();
         $send_array[0] =
@@ -35,7 +36,7 @@ class defaultController extends appController
                 'id' => $route['id'],
                 'name' => $route['name']
             );
-        return ajax_echo(json_encode($send_array));
+        return ajax_echo(encrypt_transfer_data(json_encode($send_array)));
     }
 
     function ajax_login()

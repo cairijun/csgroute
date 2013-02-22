@@ -97,7 +97,100 @@ function post_new_password() {
   }
 }
 
+function xssf(data) {
+  return data.replace(/[&\"<>]/g, function(c) {
+    switch(c) {
+      case '&':
+        return '&amp;';
+      case '"':
+        return '&quot;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+    }
+  });
+}
+
 function showErrorModal(msg) {
   $('#modalErrorMsg').text(msg);
   $('#errorModal').modal('show');
+}
+
+//获取加密传输用密钥
+function getKey() {
+  var key = window.sessionStorage.getItem('KEY');
+  if(key == null) {
+    //sessionStorage中没有密钥，生成一个新的并通知服务器
+    key = CryptoJS.lib.WordArray.random(24).toString(CryptoJS.enc.Base64);
+    $.post(
+      '?c=app&a=ajax_set_key',
+      {
+        key : rsaEncrypt(key)
+      },
+      function(data) {
+        responseObj = $.parseJSON(data);
+        if(responseObj.code != 0)
+          return false;
+        else
+          window.sessionStorage.setItem('KEY', key);
+      }
+    );
+  }
+  return key;
+}
+
+//用RSA公钥加密数据
+function rsaEncrypt(data) {
+  var modulus = 'D5941D31993E3F792362C405FCDA1E856AA1062B667F88DB70D2ADF9BC6324DABDB3720897A482F2A1482095B05C9E5D592AA205714E3CF85C568FAAF8AC43FE1A56A1CE18976041408FA9C84435F3FF163451E7EB95AF21606D58E6937356F0ABA3D08EC68655732EB850217A02ABB22357D0AFEB922C358F22853CEAACA799';
+  var publicE = '10001';
+  var rsaObj = new RSAKey();
+  rsaObj.setPublic(modulus, publicE);
+  var hexData = rsaObj.encrypt(data);
+  return CryptoJS.enc.Hex.parse(hexData).toString(CryptoJS.enc.Base64);
+}
+
+//加密数据
+function encryptedData(data) {
+  var ivStr = CryptoJS.enc.Base64.stringify(CryptoJS.lib.WordArray.random(12));
+  var key = CryptoJS.enc.Latin1.parse(getKey());
+  var encryptedData = CryptoJS.AES.encrypt(
+    data, key,
+    {
+      padding: CryptoJS.pad.ZeroPadding,
+      iv: CryptoJS.enc.Latin1.parse(ivStr),
+      mode: CryptoJS.mode.CBC
+    }
+  );
+  return ivStr + encryptedData.toString();
+}
+
+//解密服务器中返回的加密数据并解析成对象
+function parseEncryptedData(data) {
+  //返回数据的前16个字符为IV
+  var ivStr = data.substr(0, 16);
+  var dataStr = data.substr(16);
+  var iv = CryptoJS.enc.Latin1.parse(ivStr);
+  var key = CryptoJS.enc.Latin1.parse(getKey());
+  var originalData = CryptoJS.AES.decrypt(
+    dataStr, key,
+    {
+      padding: CryptoJS.pad.ZeroPadding,
+      iv: iv,
+      mode: CryptoJS.mode.CBC
+    }
+  );
+  return $.parseJSON(originalData.toString(CryptoJS.enc.Utf8));
+}
+
+//加密POST数据
+function encryptedPost(url, data, success, fail) {
+  var dataToPostStr = JSON.stringify(data);
+  $.post(
+    url,
+    {
+      data: encryptedData(dataToPostStr)
+    },
+    function(responseData){success(parseEncryptedData(responseData));}
+  ).fail(fail);
 }

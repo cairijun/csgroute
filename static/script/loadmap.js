@@ -176,7 +176,9 @@ function loadARoute(routeId, admin) {
     gInfoWindow = new google.maps.InfoWindow({});
     return true;
   }
-  $.getJSON('?c=default&a=ajax_getroutes&route_id=' + routeId, function(data) {
+  getKey();
+  $.get('?c=default&a=ajax_getroutes&route_id=' + routeId, function(d) {
+    var data = parseEncryptedData(d);
     var line = data[0].line;
     line.name = data[0].name;
     line.id = data[0].id;
