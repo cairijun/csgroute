@@ -40,14 +40,14 @@ function saveARoute() {
 
   //构建最终上传数据
   var _data = {
-    routeData : JSON.stringify(_routeData),
+    routeData : _routeData,
     routeId : gLine.id,
     routeName : gLine.name,
     postToken : $('#post-token').data('token')
   };
 
-  $.post('?c=admin&a=ajax_save', _data, function(response) {
-    responseObj = $.parseJSON(response);
+  //$.post('?c=admin&a=ajax_save', _data, function(response) {
+  encryptedPost('?c=admin&a=ajax_save', _data, function(responseObj) {
     $('#save').popover({
       placement : 'bottom',
       trigger : 'manual',
@@ -68,8 +68,7 @@ function saveARoute() {
     setMode('normal');
 
     $('#post-token').data('token', responseObj.token);
-  }).
-    fail(function() {
+  }, function() {
     //$('#authErrorModal').modal('toggle');
     showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
   });
@@ -103,20 +102,20 @@ function addARoute() {
 function deleteARoute() {
   //var _routeIdToDelete = $('.btn-group-vertical button.active').data('id');
   var _routeIdToDelete = gLine.id;
-  $.post('?c=admin&a=ajax_delete',
-         {routeId : _routeIdToDelete, postToken : $('#post-token').data('token')},
-         function(response) {
-           responseObj = $.parseJSON(response);
-           if(responseObj.code == 0) {
-             clearMap();
-             $('.btn-group-vertical button.active').remove();
-             $('#post-token').data('token', responseObj.token);
-           }
-         }).
-           fail(function() {
-           //$('#authErrorModal').modal('toggle');
-           showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
-         });
+  encryptedPost(
+    '?c=admin&a=ajax_delete',
+    {routeId : _routeIdToDelete, postToken : $('#post-token').data('token')},
+    function(responseObj) {
+      if(responseObj.code == 0) {
+        clearMap();
+        $('.btn-group-vertical button.active').remove();
+        $('#post-token').data('token', responseObj.token);
+      }
+    },
+    function() {
+      //$('#authErrorModal').modal('toggle');
+      showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
+    });
 }
 
 function editProperties() {
@@ -361,20 +360,22 @@ function regUserAdminEvent() {
 
 function delete_a_user_event_handler(userid, ensure) {
   if(ensure) {
-    $.post('?c=admin&a=ajax_delete_a_user', {userid:userid, postToken:$('#post-token').data('token')}, function(d) {
-      var data = $.parseJSON(d);
-      $('#post-token').data('token', data.token);
-      if(data.errno != 0) {
-        showErrorModal(data.msg);
-      }
-      else {
-        $('table tr[data-userid="' + userid + '"]').remove();
-        regUserAdminEvent();
-      }
-    }).fail(function() {
-      $('#addUser').popover('hide');
-      showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
-    });
+    encryptedPost(
+      '?c=admin&a=ajax_delete_a_user',
+      {userid:userid, postToken:$('#post-token').data('token')},
+      function(data) {
+        $('#post-token').data('token', data.token);
+        if(data.errno != 0) {
+          showErrorModal(data.msg);
+        }
+        else {
+          $('table tr[data-userid="' + userid + '"]').remove();
+          regUserAdminEvent();
+        }
+      },function() {
+        $('#addUser').popover('hide');
+        showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
+      });
   }
   $('table button.btn-danger[data-userid="' + userid + '"]').popover('hide');
 }
@@ -392,7 +393,7 @@ function addAUser() {
   }
   var permissions = $('#newUserPermissions .active').data('permissions');
   var passhash = get_pass_hash(password, username);
-  $.post(
+  encryptedPost(
     '?c=admin&a=ajax_add_a_user',
     {
       username: username,
@@ -400,8 +401,7 @@ function addAUser() {
       permissions: permissions,
       postToken : $('#post-token').data('token')
     },
-    function(d) {
-      var data = $.parseJSON(d);
+    function(data) {
       $('#post-token').data('token', data.token);
       if(data.errno != 0) {
         $('#addUser').popover('hide');
@@ -425,11 +425,11 @@ function addAUser() {
       $(newUserRow).appendTo('#usersAdmin tbody');
       regUserAdminEvent();
       $('#addUser').popover('hide');
-    }
-  ).fail(function() {
-    $('#addUser').popover('hide');
-    showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
-  });
+    },
+    function() {
+      $('#addUser').popover('hide');
+      showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
+    });
 }
 
 function adminSearchEventHandler() {

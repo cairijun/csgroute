@@ -150,6 +150,21 @@ function rsaEncrypt(data) {
   return CryptoJS.enc.Hex.parse(hexData).toString(CryptoJS.enc.Base64);
 }
 
+//加密数据
+function encryptedData(data) {
+  var ivStr = CryptoJS.enc.Base64.stringify(CryptoJS.lib.WordArray.random(12));
+  var key = CryptoJS.enc.Latin1.parse(getKey());
+  var encryptedData = CryptoJS.AES.encrypt(
+    data, key,
+    {
+      padding: CryptoJS.pad.ZeroPadding,
+      iv: CryptoJS.enc.Latin1.parse(ivStr),
+      mode: CryptoJS.mode.CBC
+    }
+  );
+  return ivStr + encryptedData.toString();
+}
+
 //解密服务器中返回的加密数据并解析成对象
 function parseEncryptedData(data) {
   //返回数据的前16个字符为IV
@@ -166,4 +181,16 @@ function parseEncryptedData(data) {
     }
   );
   return $.parseJSON(originalData.toString(CryptoJS.enc.Utf8));
+}
+
+//加密POST数据
+function encryptedPost(url, data, success, fail) {
+  var dataToPostStr = JSON.stringify(data);
+  $.post(
+    url,
+    {
+      data: encryptedData(dataToPostStr)
+    },
+    function(responseData){success(parseEncryptedData(responseData));}
+  ).fail(fail);
 }
