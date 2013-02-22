@@ -40,14 +40,14 @@ function saveARoute() {
 
   //构建最终上传数据
   var _data = {
-    routeData : JSON.stringify(_routeData),
+    routeData : _routeData,
     routeId : gLine.id,
     routeName : gLine.name,
     postToken : $('#post-token').data('token')
   };
 
-  $.post('?c=admin&a=ajax_save', _data, function(response) {
-    responseObj = $.parseJSON(response);
+  //$.post('?c=admin&a=ajax_save', _data, function(response) {
+  encryptedPost('?c=admin&a=ajax_save', _data, function(responseObj) {
     $('#save').popover({
       placement : 'bottom',
       trigger : 'manual',
@@ -68,8 +68,7 @@ function saveARoute() {
     setMode('normal');
 
     $('#post-token').data('token', responseObj.token);
-  }).
-    fail(function() {
+  }, function() {
     //$('#authErrorModal').modal('toggle');
     showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
   });

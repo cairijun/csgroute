@@ -34,6 +34,7 @@ class adminController extends appController
 
     function ajax_save()
     {
+        $_POST = parse_encrypted_post();
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
         {
             add_a_log(
@@ -42,9 +43,10 @@ class adminController extends appController
                 $_COOKIE['USERNAME']);
             header('HTTP/1.1 403 Forbidden');
             exit();
-        } 
+        }
         $newToken = anti_csrf(true);
-        $routeData = json_decode($_POST['routeData'], true);
+        //$routeData = json_decode($_POST['routeData'], true);
+        $routeData = $_POST['routeData'];
         $routeId = $_POST['routeId'];
         if($routeId == '#') {
             //新线路
@@ -65,7 +67,7 @@ class adminController extends appController
             );
             $ret = array('routeId' => $newId, 'content' => '修改成功！', 'token' => $newToken);
         }
-        ajax_echo(json_encode($ret));
+        ajax_echo(encrypt_transfer_data(json_encode($ret)));
     }
 
     function ajax_delete()
