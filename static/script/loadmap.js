@@ -1,6 +1,6 @@
 //地图初始化
 function initMap(container) {
-  if(typeof(map) == 'undefined') {
+  if(typeof(map) == 'undefined' || map == null) {
     var centerLatLng = new google.maps.LatLng(23.066944,113.386667);
     var options = {
       zoom : 14,
@@ -21,6 +21,8 @@ function initMap(container) {
     gCyanMarkerIconI = getCyanMarkerIcon(false);
     gCyanMarkerIconS = getCyanMarkerIcon(true);
   }
+  else
+    google.maps.event.trigger(map, 'resize');
 }
 
 function clearMap() {
@@ -262,13 +264,13 @@ function toggleSide() {
     $('.container-fluid div.span9').removeClass('span9').addClass('span11');
     $('#toggleSideIcon').removeClass('icon-chevron-left').addClass('icon-chevron-right');
 
-    if(typeof(map) != 'undefined' && map != null)
-      google.maps.event.trigger(map, 'resize');
-
     $('.container-fluid div.span3').
       css('position', 'absolute').
       animate({left: -$('.container-fluid div.span3').width()}, 400,
               function() {
+                if(typeof(map) != 'undefined' && map != null)
+                  google.maps.event.trigger(map, 'resize');
+
                 $('#showSide').removeClass('hide');
                 gHideSide = true;
               }
