@@ -1,3 +1,23 @@
+html
+{
+  overflow-y:scroll;
+}
+
+body 
+{
+  padding-top: 60px;
+}
+
+.sidebar-nav 
+{
+  padding: 9px 0;
+}
+
+#mapContainer img
+{
+  max-width:none;
+}
+
 #ft
 {
 	color:#999;
@@ -104,4 +124,15 @@ a:hover
 {
   visibility:hidden;
   display:none;
+}
+
+.sidebar-nav .nav-list
+{
+  overflow-y: auto;
+  max-height: 530px;
+}
+
+#summary
+{
+  height: 400px;
 }
