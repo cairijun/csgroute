@@ -107,6 +107,15 @@ class adminController extends appController
         if(isset($_POST['permissions']))
         {
             $permissions = intval($_POST['permissions']);
+            if($permissions == 0)
+            {
+                return ajax_echo(encrypt_transfer_data(json_encode(
+                    array(
+                        'errno' => -2,
+                        'msg' => '无法添加最高权限用户！',
+                        'token' => $newToken
+                    ))));
+            }
             $ret = add_a_user($username, $passhash, $permissions);
         }
         else

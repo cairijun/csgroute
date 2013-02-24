@@ -258,7 +258,7 @@ function regMapEvents() {
         window.setTimeout(function() {
           callbackableModal('#addMarkerModal', function() {
             _marker.setTitle($('#markerTitle').val());
-            _marker.content = $('#markerContent').val().replace('\n', '<br />');
+            _marker.content = $('#markerContent').val().replace(/\n/g, '<br />');
             _marker.index = gMarkersArray.length;
  
             //创建对应的Label

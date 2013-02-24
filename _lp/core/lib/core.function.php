@@ -58,19 +58,20 @@ function render( $data = NULL , $layout = NULL , $sharp = 'default' )
 {
 	if( $layout == null )
 	{
-		if( is_ajax_request() )
-		{
-			$layout = 'ajax';
-		}
-		elseif( is_mobile_request() )
-		{
-			//$layout = 'mobile';
-            $layout = 'web';
-		}
-		else
-		{
-			$layout = 'web';
-		}
+		//if( is_ajax_request() )
+		//{
+		//	$layout = 'ajax';
+		//}
+		//elseif( is_mobile_request() )
+		//{
+		//	//$layout = 'mobile';
+        //    $layout = 'web';
+		//}
+		//else
+		//{
+		//	$layout = 'web';
+        //}
+        $layout = 'web';
 	}
 	
 	$GLOBALS['layout'] = $layout;
