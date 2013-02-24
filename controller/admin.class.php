@@ -41,8 +41,7 @@ class adminController extends appController
                 'admin.class.php:ajax_save():38',
                 'Save route error',
                 $_COOKIE['USERNAME']);
-            header('HTTP/1.1 403 Forbidden');
-            exit();
+            output_403();
         }
         $newToken = anti_csrf(true);
         //$routeData = json_decode($_POST['routeData'], true);
@@ -79,8 +78,7 @@ class adminController extends appController
                 'admin.class.php:ajax_delete():73',
                 'Delete route error',
                 $_COOKIE['USERNAME']);
-            header('HTTP/1.1 403 Forbidden');
-            exit();
+            output_403();
         } 
         $newToken = anti_csrf(true);
         $routeId = $_POST['routeId'];
@@ -97,8 +95,7 @@ class adminController extends appController
                 'admin.class.php:ajax_add_a_user():89',
                 'Add user error',
                 $_COOKIE['USERNAME']);
-            header('HTTP/1.1 403 Forbidden');
-            exit();
+            output_403();
         } 
         $newToken = anti_csrf(true);
         $username = xssf($_POST['username']);
@@ -149,8 +146,7 @@ class adminController extends appController
                 'admin.class.php:ajax_delete_a_user():128',
                 'Delete user error',
                 $_COOKIE['USERNAME']);
-            header('HTTP/1.1 403 Forbidden');
-            exit();
+            output_403();
         }
         $newToken = anti_csrf(true);
         if(delete_a_user($_POST['userid']))
