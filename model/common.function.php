@@ -1,7 +1,7 @@
 <?php
 function get_a_route_by_id($id) {
     $sql_select = prepare(
-        "SELECT `id`,`markers`,`points`,`name` FROM `routes` WHERE `id` = ?i",
+        "SELECT `id`,`markers`,`points`,`name`,`status` FROM `routes` WHERE `id` = ?i",
         array($id));
     $sql_update = prepare(
         "UPDATE `routes` SET `visit` = `visit` + 1 WHERE `id` = ?i",

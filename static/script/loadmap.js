@@ -185,21 +185,20 @@ function loadARoute(routeId, admin) {
     line.name = data[0].name;
     line.id = data[0].id;
     var markers = data[0].markers;
-    var startPoint = line.path[0];
-    if(!startPoint && data[0].markers[0]) {
-      startPoint = data[0].markers[0].position;
+
+    //加载地图的状态
+    if(typeof(data[0].status) != 'undefined' && data[0].status != null) {
+      var center = data[0].status.center;
+      var zoom = data[0].status.zoom;
+      if(typeof(center) != 'undefined' && center != null) {
+        var centerPoint = new google.maps.LatLng(center[0], center[1]);
+        map.setCenter(centerPoint);
+      }
+      if(typeof(zoom) != 'undefined' && zoom != null) {
+        map.setZoom(zoom);
+      }
     }
-    var endPoint = line.path[line.path.length - 1];
-    if(!endPoint && startPoint) {
-      endPoint = startPoint;
-    }
-    if(startPoint) {
-      var centerPoint = new google.maps.LatLng(
-        (startPoint[0] + endPoint[0]) / 2,
-        (startPoint[1] + endPoint[1]) / 2
-      );
-      map.setCenter(centerPoint);
-    }
+
     drawARoute(line, markers, admin);
     if(admin) {
       gAddMode = true;

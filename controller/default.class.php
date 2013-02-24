@@ -31,7 +31,8 @@ class defaultController extends appController
                 'line' => json_decode($route['points'], true),
                 'markers' => json_decode($route['markers'], true),
                 'id' => $route['id'],
-                'name' => $route['name']
+                'name' => $route['name'],
+                'status' => json_decode($route['status'], true)
             );
         return ajax_echo(encrypt_transfer_data(json_encode($send_array)));
     }
