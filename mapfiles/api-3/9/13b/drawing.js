@@ -1,0 +1,2 @@
+google.maps.__gjsload__('drawing', '\'use strict\';function Bi(a){var b=this,a=a||{};a.drawingMode=a.drawingMode||k;b[vb](a);S(Ee,function(a){new a.b(b)})}J(Bi,V);Lf(Bi[F],{map:se(Xf),drawingMode:ye});lf.drawing=function(a){eval(a)};dd.google.maps.drawing={DrawingManager:Bi,OverlayType:{MARKER:"marker",POLYGON:"polygon",POLYLINE:"polyline",RECTANGLE:"rectangle",CIRCLE:"circle"}};of("drawing",{});\n')
+

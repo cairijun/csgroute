@@ -10,6 +10,34 @@ function initMap(container) {
     if(typeof(container) == 'undefined')
       container = "mapContainer";
     map = new google.maps.Map(document.getElementById(container), options);
+
+    //加载离线地图
+    var gmapsMapTypeId = "Satellitemap";
+    map.mapTypes.set(
+      gmapsMapTypeId, GMapsMapTypeFactory.createMapType("Satellite","maptile/googlemaps/satellite/"));
+    var gRoadMapTypeId = "Roadmap";
+    map.mapTypes.set(
+      gRoadMapTypeId, GRoadMapTypeFactory.createMapType("Road","maptile/googlemaps/roadmap/"));
+    var gNightMapTypeId = "Nightmap";
+    map.mapTypes.set(
+      gNightMapTypeId, GRoadMapTypeFactory.createMapType("Night","maptile/googlemaps/night_orange/"));
+    map.streetViewControl = false;
+    map.mapTypeControlOptions = {
+      mapTypeIds: [gmapsMapTypeId, gRoadMapTypeId, gNightMapTypeId]
+    };
+    map.setMapTypeId(gRoadMapTypeId);
+    gOverlayExists = false;
+    google.maps.event.addListener(map, 'maptypeid_changed', function() {
+      if(gOverlayExists) {
+        removeOverlayMapType();
+        gOverlayExists = false;
+      }
+      if(map.getMapTypeId() === gmapsMapTypeId) {
+        addMarkerLayersTile();
+        gOverlayExists = true;
+      }
+    });
+
     if(typeof(controller) != 'undefined' && controller == 'default') {
       //测距功能按键与管理页面冲突，所以只在查看页面加载
       gRuleControl = new RuleControl(map);

@@ -1,0 +1,2 @@
+google.maps.__gjsload__('maxzoom', '\'use strict\';function JB(){}JB[F].getMaxZoomAtLatLng=function(a,b){var c=Mg.b[15],d=new Sg,e=Do([c!=k?c:""],k,eg,new U(256,256),22,l,wm,Sd),c=N(k,Yn,fa,fg),f=d[eb](a);f.x=n[hb](8388608*(f.x/256));f.y=n[hb](8388608*(f.y/256));d=ho(vo,function(a){var c={};a[uk]?(Za(c,a[uk]),So(c,Tc)):So(c,Nc);b(c)});e=e(f,23);c(e,k,"",d,function(){b({status:Nc})});ir("maxzoom")};var KB=new JB;lf[Ke]=function(a){eval(a)};of(Ke,KB);\n')
+
