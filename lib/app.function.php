@@ -200,7 +200,7 @@ function encrypt_transfer_data($data, $key = null)
     return $iv . base64_encode($encrypted_data);
 }
 
-function parse_encrypted_post($key = null)
+function decrypt_transfer_data($data, $key = null)
 {
     if($key == null && isset($_SESSION['KEY']))
         $key = $_SESSION['KEY'];
@@ -211,12 +211,18 @@ function parse_encrypted_post($key = null)
         exit();
     }
 
+    $iv = substr($data, 0, 16);
+    $encrypted_data = base64_decode(substr($data, 16));
+    $original_data = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key, $encrypted_data, MCRYPT_MODE_CBC, $iv);
+    $original_data = trim($original_data);//解密后的数据有时会多出一些不可见字符
+    return $original_data;
+}
+
+//解析加密POST过来的JSON数据
+function parse_encrypted_post($key = null)
+{
     if(isset($_POST['data']))
     {
-        $iv = substr($_POST['data'], 0, 16);
-        $encrypted_data = base64_decode(substr($_POST['data'], 16));
-        $original_data = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key, $encrypted_data, MCRYPT_MODE_CBC, $iv);
-        $original_data = trim($original_data);//解密后的数据有时会多出一些不可见字符
-        return json_decode($original_data, true);
+        return json_decode(decrypt_transfer_data($_POST['data'], $key), true);
     }
 }
