@@ -87,10 +87,7 @@ class appController extends coreController
     function ajax_set_key()
     {
         if(!g('gAuth'))
-        {
-            header('HTTP/1.1 403 Forbidden');
-            exit();
-        }
+            output_403();
 
         $private_key_pem_file = '-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQDVlB0xmT4/eSNixAX82h6FaqEGK2Z/iNtw0q35vGMk2r2zcgiX
