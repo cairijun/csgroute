@@ -38,11 +38,19 @@ function saveARoute() {
     markers : _markersArrayToUpload
   };
 
+  //获取当前地图的状态
+  var _center = map.getCenter();
+  var _status = {
+    center : [_center.lat(), _center.lng()],
+    zoom : map.getZoom()
+  };
+
   //构建最终上传数据
   var _data = {
     routeData : _routeData,
     routeId : gLine.id,
     routeName : gLine.name,
+    status : _status,
     postToken : $('#post-token').data('token')
   };
 

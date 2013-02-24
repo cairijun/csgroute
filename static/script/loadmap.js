@@ -1,6 +1,6 @@
 //地图初始化
 function initMap(container) {
-  if(typeof(map) == 'undefined') {
+  if(typeof(map) == 'undefined' || map == null) {
     var centerLatLng = new google.maps.LatLng(23.066944,113.386667);
     var options = {
       zoom : 14,
@@ -21,6 +21,8 @@ function initMap(container) {
     gCyanMarkerIconI = getCyanMarkerIcon(false);
     gCyanMarkerIconS = getCyanMarkerIcon(true);
   }
+  else
+    google.maps.event.trigger(map, 'resize');
 }
 
 function clearMap() {
@@ -183,21 +185,20 @@ function loadARoute(routeId, admin) {
     line.name = data[0].name;
     line.id = data[0].id;
     var markers = data[0].markers;
-    var startPoint = line.path[0];
-    if(!startPoint && data[0].markers[0]) {
-      startPoint = data[0].markers[0].position;
+
+    //加载地图的状态
+    if(typeof(data[0].status) != 'undefined' && data[0].status != null) {
+      var center = data[0].status.center;
+      var zoom = data[0].status.zoom;
+      if(typeof(center) != 'undefined' && center != null) {
+        var centerPoint = new google.maps.LatLng(center[0], center[1]);
+        map.setCenter(centerPoint);
+      }
+      if(typeof(zoom) != 'undefined' && zoom != null) {
+        map.setZoom(zoom);
+      }
     }
-    var endPoint = line.path[line.path.length - 1];
-    if(!endPoint && startPoint) {
-      endPoint = startPoint;
-    }
-    if(startPoint) {
-      var centerPoint = new google.maps.LatLng(
-        (startPoint[0] + endPoint[0]) / 2,
-        (startPoint[1] + endPoint[1]) / 2
-      );
-      map.setCenter(centerPoint);
-    }
+
     drawARoute(line, markers, admin);
     if(admin) {
       gAddMode = true;
@@ -262,13 +263,13 @@ function toggleSide() {
     $('.container-fluid div.span9').removeClass('span9').addClass('span11');
     $('#toggleSideIcon').removeClass('icon-chevron-left').addClass('icon-chevron-right');
 
-    if(typeof(map) != 'undefined' && map != null)
-      google.maps.event.trigger(map, 'resize');
-
     $('.container-fluid div.span3').
       css('position', 'absolute').
       animate({left: -$('.container-fluid div.span3').width()}, 400,
               function() {
+                if(typeof(map) != 'undefined' && map != null)
+                  google.maps.event.trigger(map, 'resize');
+
                 $('#showSide').removeClass('hide');
                 gHideSide = true;
               }

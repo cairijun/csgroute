@@ -1,22 +1,24 @@
 <?php
 include(AROOT . 'model' . DS . 'common.function.php');
 
-function add_a_route($markers, $points, $name) {
+function add_a_route($markers, $points, $name, $status = null) {
     $markersJSON = json_encode($markers);
     $pointsJSON = json_encode($points);
+    $statusJSON = json_encode($status);
     $sql = prepare(
-        "INSERT INTO `routes` (`markers`,`points`,`name`,`mtime`) VALUES (?s,?s,?s,NOW())",
-        array($markersJSON, $pointsJSON, $name));
+        "INSERT INTO `routes` (`markers`,`points`,`name`,`mtime`, `status`) VALUES (?s,?s,?s,NOW(),?s)",
+        array($markersJSON, $pointsJSON, $name, $statusJSON));
     run_sql($sql);
     return last_id();
 }
 
-function edit_a_route($markers, $points, $name, $id) {
+function edit_a_route($markers, $points, $name, $id, $status = null) {
     $markersJSON = json_encode($markers);
     $pointsJSON = json_encode($points);
+    $statusJSON = json_encode($status);
     $sql = prepare(
-        "UPDATE `routes` SET `markers` = ?s, `points` = ?s, `name` = ?s, `mtime` = NOW() WHERE `id` = ?i",
-        array($markersJSON, $pointsJSON, $name, $id));
+        "UPDATE `routes` SET `markers` = ?s, `points` = ?s, `name` = ?s, `mtime` = NOW(), `status` = ?s WHERE `id` = ?i",
+        array($markersJSON, $pointsJSON, $name, $statusJSON, $id));
     run_sql($sql);
     return $id;
 }
