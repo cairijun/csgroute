@@ -110,11 +110,8 @@ function ajax_echo( $info )
 
 function info_page( $info , $title = '系统消息' )
 {
-	if( is_ajax_request() )
-		$layout = 'ajax';
-	else
-		$layout = 'web';
-	
+    $layout = 'web';
+
 	$data['top_title'] = $data['title'] = $title;
     $data['info'] = $info;
     $data['auth'] = g('gAuth');

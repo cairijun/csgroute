@@ -12,6 +12,12 @@ $(document).ready(function() {
       function(d) {
         var ret = JSON.parse(d);
         if(ret.errno == 0) {
+          if(typeof(page) != 'undefined') {
+            if(page == 'info') {
+              location.reload();
+              return;
+            }
+          }
           $('.dropdown span').text(ret.msg);
           $('#loginform').addClass('navbar-hide');
           $('#usermenu').removeClass('navbar-hide');
