@@ -177,7 +177,7 @@ function regToolbarEvents() {
   <div id="routeType" class="btn-group" style="margin:0px 0px 10px" data-toggle="buttons-radio">\
     <button data-color="red" class="btn btn-small btn-danger active">管道光缆</button>\
     <button data-color="green" class="btn btn-small btn-success">架空ADSS</button>\
-    <button data-color="yellow" class="btn btn-small btn-warning">架空OPGW</button>\
+    <button data-color="blue" class="btn btn-small btn-primary">架空OPGW</button>\
   </div>';
 
   //修改属性对话框
