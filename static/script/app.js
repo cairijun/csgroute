@@ -19,14 +19,14 @@ function regLoginPageEvents() {
     login(
       $('#username').val(),
       $('#password').val(),
-      function() {
+      function(ret) {
         window.localStorage.setItem('LAST_USERNAME', $('#username').val());
         if(navigateTo)
           location.href = navigateTo;
         else
           location.href = 'index.php'
       },
-      function() {
+      function(ret) {
         $('#loginform div.alert').fadeIn();
         $('#password').focus();
       }
@@ -40,7 +40,7 @@ function regMainPageEvents() {
     login(
       $('#username').val(),
       $('#password').val(),
-      function() {
+      function(ret) {
         if(typeof(page) != 'undefined') {
           if(page == 'info') {
             location.reload();
@@ -51,9 +51,9 @@ function regMainPageEvents() {
         $('#loginform').addClass('navbar-hide');
         $('#usermenu').removeClass('navbar-hide');
       },
-      function () {
+      function (ret) {
         $('#loginform button').popover(
-          {placement:'bottom', trigger:'manual', title:'错误', content:ret.msg}).
+          {placement:'bottom', trigger:'manual', title:'错误', content:ret.msg, container : 'body'}).
           popover('show');
           window.setTimeout("$('#loginform button').popover('hide')", 2000);
       }
@@ -72,9 +72,9 @@ function login(username, password, success, fail) {
     function(d) {
       var ret = $.parseJSON(d);
       if(ret.errno == 0)
-        success();
+        success(ret);
       else
-        fail();
+        fail(ret);
     }).fail(fail);
 }
 
@@ -102,20 +102,20 @@ function change_password() {
 
 function post_new_password() {
   var inconsistentAlert = '\
-  <div id="inconsistentAlert" class="alert alert-error fade in">\
-  <button type="button" class="close" data-dismiss="alert">&times;</button>\
-  <strong>错误！</strong>新密码两次输入不一致。\
-  </div>';
+<div id="inconsistentAlert" class="alert alert-error fade in">\
+<button type="button" class="close" data-dismiss="alert">&times;</button>\
+<strong>错误！</strong>新密码两次输入不一致。\
+</div>';
   var oldpasswordAlert = '\
-  <div id="oldPasswordAlert" class="alert alert-error fade in">\
-  <button type="button" class="close" data-dismiss="alert">&times;</button>\
-  <strong>错误！</strong>旧密码输入错误。\
-  </div>';
+<div id="oldPasswordAlert" class="alert alert-error fade in">\
+<button type="button" class="close" data-dismiss="alert">&times;</button>\
+<strong>错误！</strong>旧密码输入错误。\
+</div>';
   var successAlert = '\
-  <div id="successAlert" class="alert alert-success fade in">\
-  <button type="button" class="close" data-dismiss="alert">&times;</button>\
-  <strong>修改成功！</strong>请重新登录。\
-  </div>';
+<div id="successAlert" class="alert alert-success fade in">\
+<button type="button" class="close" data-dismiss="alert">&times;</button>\
+<strong>修改成功！</strong>请重新登录。\
+</div>';
 
   $('#alertContainer .alert').alert('close');
   if($('#newpassword').val() != $('#repeatpassword').val()) {
