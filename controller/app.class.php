@@ -21,6 +21,22 @@ class appController extends coreController
             info_page(nl2br($about_text), '关于');
     }
 
+    //独立登录页面
+    function login()
+    {
+        $to = preg_replace('/[<>\'";]/', '', v('to'));
+        if(!g('gAuth'))
+        {
+            $data['title'] = $data['top_title'] = '登录';
+            $data['to']  = $to;
+            return render($data, 'web', 'login');
+        }
+        elseif(v('to') != null)
+            header('Location:' . $to);
+        else
+            header('Location:index.php');
+    }
+
 	// login check or something
 
     function ajax_login()

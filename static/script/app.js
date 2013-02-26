@@ -1,39 +1,82 @@
 $(document).ready(function() {
+  if(typeof(page) != 'undefined' && page == 'login')
+    regLoginPageEvents();
+  else
+    regMainPageEvents();
+});
+
+function regLoginPageEvents() {
+  var lastUsername = window.localStorage.getItem('LAST_USERNAME');
+  if(lastUsername) {
+    $('#username').val(lastUsername);
+    $('#password').focus();
+  }
+  else
+    $('#username').focus();
+
   $('#loginform').submit(function(e) {
     e.preventDefault();
-    var password = $('#password').val();
-    var _passhash = get_pass_hash(password, $('#username').val());
-    $.post(
-      '?c=app&a=ajax_login',
-      {
-        username: $('#username').val(),
-        passhash: _passhash + ''
+    login(
+      $('#username').val(),
+      $('#password').val(),
+      function() {
+        window.localStorage.setItem('LAST_USERNAME', $('#username').val());
+        if(navigateTo)
+          location.href = navigateTo;
+        else
+          location.href = 'index.php'
       },
-      function(d) {
-        var ret = JSON.parse(d);
-        if(ret.errno == 0) {
-          if(typeof(page) != 'undefined') {
-            if(page == 'info') {
-              location.reload();
-              return;
-            }
-          }
-          $('.dropdown span').text(ret.msg);
-          $('#loginform').addClass('navbar-hide');
-          $('#usermenu').removeClass('navbar-hide');
-        }
-        else {
-          $('#loginform button').popover(
-            {placement:'bottom', trigger:'manual', title:'错误', content:ret.msg}).
-            popover('show');
-            window.setTimeout("$('#loginform button').popover('hide')", 2000);
-        }
+      function() {
+        $('#loginform div.alert').fadeIn();
+        $('#password').focus();
       }
     );
   });
+}
 
+function regMainPageEvents() {
+  $('#loginform').submit(function(e) {
+    e.preventDefault();
+    login(
+      $('#username').val(),
+      $('#password').val(),
+      function() {
+        if(typeof(page) != 'undefined') {
+          if(page == 'info') {
+            location.reload();
+            return;
+          }
+        }
+        $('.dropdown span').text(ret.msg);
+        $('#loginform').addClass('navbar-hide');
+        $('#usermenu').removeClass('navbar-hide');
+      },
+      function () {
+        $('#loginform button').popover(
+          {placement:'bottom', trigger:'manual', title:'错误', content:ret.msg}).
+          popover('show');
+          window.setTimeout("$('#loginform button').popover('hide')", 2000);
+      }
+    );
+  });
   $('#changePasswordModal').on('hide', function(){$('#alertContainer .alert').remove();});
-});
+}
+
+function login(username, password, success, fail) {
+  $.post(
+    '?c=app&a=ajax_login',
+    {
+      username: username,
+      passhash: get_pass_hash(password, username)
+    },
+    function(d) {
+      var ret = $.parseJSON(d);
+      if(ret.errno == 0)
+        success();
+      else
+        fail();
+    }).fail(fail);
+}
 
 function get_pass_hash(password, username) {
     var _passhash = CryptoJS.SHA1(password);
