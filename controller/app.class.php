@@ -4,7 +4,6 @@ include_once( CROOT . 'controller' . DS . 'core.class.php' );
 
 session_start();
 $gAuth = check_auth();
-session_start();
 
 class appController extends coreController
 {
@@ -43,8 +42,11 @@ class appController extends coreController
     {
         anti_csrf();
         $username = $_POST['username'];
-        $passhash = $_POST['passhash'];
-        $key = rsa_encrypt_data($_POST['key']);
+
+        $decrypted_key = json_decode(rsa_encrypt_data($_POST['key']), true);
+        $passhash = $decrypted_key['passhash'];
+        $key = $decrypted_key['key'];
+
         if(user_login($username, $passhash, $key))
         {
             add_a_log('app.class.php:ajax_login():23', 'login_success', $username);

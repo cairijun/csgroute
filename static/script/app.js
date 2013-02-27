@@ -63,13 +63,16 @@ function regMainPageEvents() {
 }
 
 function login(username, password, success, fail) {
+  //密码hash和AES密钥一同RSA加密
   var key = CryptoJS.lib.WordArray.random(24).toString(CryptoJS.enc.Base64);
   $.post(
     '?c=app&a=ajax_login',
     {
       username: username,
-      passhash: get_pass_hash(password, username),
-      key: rsaEncrypt(key)
+      key:
+        rsaEncrypt(
+          JSON.stringify(
+            {key: key, passhash: get_pass_hash(password, username)}))
     },
     function(d) {
       var ret = $.parseJSON(d);
