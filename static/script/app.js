@@ -130,14 +130,13 @@ function post_new_password() {
     $('#newpassword').focus();
   }
   else {
-    $.post(
+    encryptedPost(
       '?c=app&a=ajax_change_password',
       {
         oldpasshash:get_pass_hash($('#oldpassword').val(), $('.dropdown span').text()),
         newpasshash:get_pass_hash($('#newpassword').val(), $('.dropdown span').text())
       },
-      function(d) {
-        var ret = $.parseJSON(d);
+      function(ret) {
         if(ret.errno == 0) {
           $(successAlert).appendTo('#alertContainer');
           setTimeout("$('#changePasswordModal').modal('hide');", 1500);
@@ -148,7 +147,7 @@ function post_new_password() {
           $(oldpasswordAlert).appendTo('#alertContainer');
           $('#oldpassword').val('').focus();
         }
-      }
+      },function(){}
     );
   }
 }

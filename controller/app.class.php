@@ -76,6 +76,7 @@ class appController extends coreController
 
     function ajax_change_password()
     {
+        $_POST = parse_encrypted_post();
         anti_csrf();
         if(g('gAuth') && isset($_POST['oldpasshash']) && isset($_POST['newpasshash']))
             if(change_password($_COOKIE['USERID'], $_POST['oldpasshash'], $_POST['newpasshash']))
@@ -84,22 +85,22 @@ class appController extends coreController
                     'app.class.php:ajax_change_password():52',
                     'change_password_success',
                     $_COOKIE['USERNAME']);
-                ajax_echo(json_encode(
+                ajax_echo(encrypt_transfer_data(json_encode(
                     array(
                         'errno' => 0,
                         'msg' => '修改成功！'
-                    )));
+                    ))));
             }
             else{
                 add_a_log(
                     'app.class.php:ajax_change_password():64',
                     'change_password_fail',
                     $_COOKIE['USERNAME']);
-                ajax_echo(json_encode(
+                ajax_echo(encrypt_transfer_data(json_encode(
                     array(
                         'errno' => -1,
                         'msg' => '修改失败！请检查旧密码。'
-                    )));
+                    ))));
             }
     }
 
