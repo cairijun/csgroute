@@ -63,16 +63,20 @@ function regMainPageEvents() {
 }
 
 function login(username, password, success, fail) {
+  var key = CryptoJS.lib.WordArray.random(24).toString(CryptoJS.enc.Base64);
   $.post(
     '?c=app&a=ajax_login',
     {
       username: username,
-      passhash: get_pass_hash(password, username)
+      passhash: get_pass_hash(password, username),
+      key: rsaEncrypt(key)
     },
     function(d) {
       var ret = $.parseJSON(d);
-      if(ret.errno == 0)
+      if(ret.errno == 0) {
+        window.localStorage.setItem('KEY', key);
         success(ret);
+      }
       else
         fail(ret);
     }).fail(fail);
@@ -168,25 +172,11 @@ function showErrorModal(msg) {
 
 //获取加密传输用密钥
 function getKey() {
-  var key = window.sessionStorage.getItem('KEY');
-  if(key == null) {
-    //sessionStorage中没有密钥，生成一个新的并通知服务器
-    key = CryptoJS.lib.WordArray.random(24).toString(CryptoJS.enc.Base64);
-    $.post(
-      '?c=app&a=ajax_set_key',
-      {
-        key : rsaEncrypt(key)
-      },
-      function(data) {
-        responseObj = $.parseJSON(data);
-        if(responseObj.code != 0)
-          return false;
-        else
-          window.sessionStorage.setItem('KEY', key);
-      }
-    );
-  }
-  return key;
+  var key = window.localStorage.getItem('KEY');
+  if(key != null)
+    return key;
+  else
+    return false;
 }
 
 //用RSA公钥加密数据

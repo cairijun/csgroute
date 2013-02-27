@@ -44,7 +44,8 @@ class appController extends coreController
         anti_csrf();
         $username = $_POST['username'];
         $passhash = $_POST['passhash'];
-        if(user_login($username, $passhash))
+        $key = rsa_encrypt_data($_POST['key']);
+        if(user_login($username, $passhash, $key))
         {
             add_a_log('app.class.php:ajax_login():23', 'login_success', $username);
             ajax_echo(json_encode(
