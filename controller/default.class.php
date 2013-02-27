@@ -11,6 +11,11 @@ class defaultController extends appController
 	
 	function index()
 	{
+        if(!g('gAuth'))
+        {
+            header('Location: ?c=app&a=login');
+            exit();
+        }
 		$data['title'] = $data['top_title'] = '首页';
         $data['routesList'] = get_routes_list();
         $data['auth'] = g('gAuth');
