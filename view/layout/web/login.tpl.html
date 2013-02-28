@@ -51,9 +51,13 @@
 
     <script>
       $(document).ready(function() {
-        $('div.row').
-          css('margin-top', -($('div.row').height() / 2 - 70) + 'px').
-          css('margin-left', -($('div.row').width() / 2) + 'px');
+        var adjustPosition = function() {
+          $('div.row').
+            css('margin-top', -($('div.row').height() / 2) + 'px').
+            css('margin-left', -($('div.row').width() / 2) + 'px');
+        };
+        adjustPosition();
+        $(window).resize(adjustPosition);
       });
     </script>
   </body>
