@@ -23,7 +23,7 @@ class appController extends coreController
     //独立登录页面
     function login()
     {
-        $to = preg_replace('/[<>\'";]/', '', v('to'));
+        $to = preg_replace('/[<>\'";]/', '', $_SERVER['HTTP_REFERER']);
         if(!g('gAuth'))
         {
             $data['title'] = $data['top_title'] = '登录';
