@@ -98,6 +98,7 @@ function logout() {
     function() {
       $('#usermenu').addClass('navbar-hide');
       $('#loginform').removeClass('navbar-hide');
+      location.href = '?c=app&a=login';
     }
   );
 }
