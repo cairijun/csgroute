@@ -23,18 +23,14 @@
   <body>
     <div class="container">
       <div class="row">
-        <div class="span3 well">
+        <div class="span5 well">
           <form class="form-horizontal" id="loginform">
             <legend>登录</legend>
             <div class="alert alert-error hide">
               <strong>登录失败！</strong>请检查用户名与密码。
             </div>
-            <div class="control-group">
-              <input class="input-block-level" type="text" id="username" placeholder="用户名">
-            </div>
-            <div class="control-group">
-              <input class="input-block-level" type="password" id="password" placeholder="密码">
-            </div>
+            <input class="span2" type="text" id="username" placeholder="用户名">
+            <input class="span2.5" type="password" id="password" placeholder="密码">
             <button type="submit" class="btn btn-primary">登录</button>
           </form>
         </div>
@@ -55,9 +51,13 @@
 
     <script>
       $(document).ready(function() {
-        $('div.row').
-          css('margin-top', -($('div.row').height() / 2 + 70) + 'px').
-          css('margin-left', -($('div.row').width() / 2) + 'px');
+        var adjustPosition = function() {
+          $('div.row').
+            css('margin-top', -($('div.row').height() / 2) + 'px').
+            css('margin-left', -($('div.row').width() / 2) + 'px');
+        };
+        adjustPosition();
+        $(window).resize(adjustPosition);
       });
     </script>
   </body>

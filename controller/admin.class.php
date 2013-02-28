@@ -11,6 +11,11 @@ class adminController extends appController
 	
 	function index()
 	{
+        if(!g('gAuth'))
+        {
+            header('Location:index.php?c=app&a=login');
+            exit();
+        }
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
         {
             add_a_log(
