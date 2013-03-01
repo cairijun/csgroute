@@ -21,6 +21,7 @@
     </style>
   </head>
   <body>
+    <?php @include_once( dirname(__FILE__) ) . DS . 'header.tpl.html'; ?>  
     <div class="container">
       <div class="row">
         <div class="span5">
@@ -53,7 +54,7 @@
     <script src="static/script/app.js"></script>
 
     <script>
-      $(document).ready(function() {
+      $(window).load(function() {
         var adjustPosition = function() {
           $('div.row').
             css('margin-top', -($('div.row').height() / 2) + 'px').
