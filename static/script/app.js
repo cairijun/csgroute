@@ -35,30 +35,6 @@ function regLoginPageEvents() {
 }
 
 function regMainPageEvents() {
-  $('#loginform').submit(function(e) {
-    e.preventDefault();
-    login(
-      $('#username').val(),
-      $('#password').val(),
-      function(ret) {
-        if(typeof(page) != 'undefined') {
-          if(page == 'info') {
-            location.reload();
-            return;
-          }
-        }
-        $('.dropdown span').text(ret.msg);
-        $('#loginform').addClass('navbar-hide');
-        $('#usermenu').removeClass('navbar-hide');
-      },
-      function (ret) {
-        $('#loginform button').popover(
-          {placement:'bottom', trigger:'manual', title:'错误', content:ret.msg, container : 'body'}).
-          popover('show');
-          window.setTimeout("$('#loginform button').popover('hide')", 2000);
-      }
-    );
-  });
   $('#changePasswordModal').on('hide', function(){$('#alertContainer .alert').remove();});
 }
 
@@ -96,8 +72,6 @@ function logout() {
   $.get(
     '?c=app&a=ajax_logout',
     function() {
-      $('#usermenu').addClass('navbar-hide');
-      $('#loginform').removeClass('navbar-hide');
       location.href = '?c=app&a=login';
     }
   );
@@ -141,8 +115,7 @@ function post_new_password() {
         if(ret.errno == 0) {
           $(successAlert).appendTo('#alertContainer');
           setTimeout("$('#changePasswordModal').modal('hide');", 1500);
-          $('#usermenu').addClass('navbar-hide');
-          $('#loginform').removeClass('navbar-hide');
+          $('#changePasswordModal').on('hidden', function() { location.href='?c=app&a=login';});
         }
         else if(ret.errno == -1) {
           $(oldpasswordAlert).appendTo('#alertContainer');

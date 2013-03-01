@@ -122,8 +122,8 @@ a:hover
 
 .navbar-hide
 {
-  visibility:hidden;
-  display:none;
+  visibility:hidden !important;
+  display:none !important;
 }
 
 .sidebar-nav .nav-list
