@@ -21,10 +21,13 @@ function regLoginPageEvents() {
       $('#password').val(),
       function(ret) {
         window.localStorage.setItem('LAST_USERNAME', $('#username').val());
+        location.href = 'index.php'
+        /*
         if(navigateTo)
           location.href = navigateTo;
         else
           location.href = 'index.php'
+         */
       },
       function(ret) {
         $('#loginform div.alert').fadeIn();
