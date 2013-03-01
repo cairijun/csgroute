@@ -7,10 +7,12 @@
       </a>
       <a class="brand" href="/"><?=c('site_name')?></a>
       <div class="nav-collapse">
+        <?php if(!(g('c') == 'app' && g('a') == 'login')): ?>
         <ul class="nav">
           <li<?php if( g('c') == 'default' ): ?> class="active"<?php endif; ?>><a href="?c=default">首页</a></li>
           <li<?php if( g('c') == 'admin' ): ?> class="active"<?php endif; ?>><a href="?c=admin">管理</a></li>
         </ul>
+        <?php endif; ?>
       </div><!--/.nav-collapse -->
       <ul id="usermenu" class="nav pull-right<?php if(!$auth):?> navbar-hide<?php endif;?>">
         <li class="dropdown">

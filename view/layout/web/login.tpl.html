@@ -15,9 +15,14 @@
         left: 50%;
         margin: 0px;
       }
-      div.well
+      div.well,div.span6
       {
         margin: 0px;
+      }
+      #loginbox
+      {
+        margin-left: 50px;
+        margin-right: 50px;
       }
     </style>
   </head>
@@ -25,18 +30,20 @@
     <?php @include_once( dirname(__FILE__) ) . DS . 'header.tpl.html'; ?>  
     <div class="container">
       <div class="row">
-        <div class="span5">
+        <div class="span6">
           <img src="./static/image/logo_large.png" />
-          <div class="well">
-            <form class="form-horizontal" id="loginform">
-              <legend>登录</legend>
-              <div class="alert alert-error hide">
-                <strong>登录失败！</strong>请检查用户名与密码。
-              </div>
-              <input class="span2" type="text" id="username" placeholder="用户名">
-              <input class="span2" type="password" id="password" placeholder="密码">
-              <button type="submit" class="btn btn-primary">登录</button>
-            </form>
+          <div id="loginbox">
+            <div class="well">
+              <form class="form-horizontal" id="loginform">
+                <legend>登录</legend>
+                <div class="alert alert-error hide">
+                  <strong>登录失败！</strong>请检查用户名与密码。
+                </div>
+                <input class="span2" type="text" id="username" placeholder="用户名">
+                <input class="span2" type="password" id="password" placeholder="密码">
+                <button type="submit" class="btn btn-primary">登录</button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
