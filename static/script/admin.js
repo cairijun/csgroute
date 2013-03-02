@@ -183,8 +183,8 @@ function regToolbarEvents() {
 
   //修改属性对话框
   var propertiesPopoverDialog = propertiesDialogCommon + '\
-<a href="javascript:editProperties();$(\'#properties\').popover(\'hide\');" class="btn btn-primary">确定</a>\
-<a href="javascript:$(\'#properties\').popover(\'hide\');" class="btn">取消</a>';
+<a href="#" onclick="javascript:editProperties();$(\'#properties\').popover(\'hide\');" class="btn btn-primary">确定</a>\
+<a href="#" onclick="javascript:$(\'#properties\').popover(\'hide\');" class="btn">取消</a>';
   $('#properties').popover({
     html : true,
     placement : 'bottom',
@@ -204,8 +204,8 @@ function regToolbarEvents() {
 
   //插入和删除的动作不直接绑定到工具栏按钮的click上，而是绑定到popover的确认按钮上
   var addPopoverDialog = propertiesDialogCommon + '\
-<a href="javascript:addARoute();$(\'#add\').popover(\'hide\');" class="btn btn-primary">确定</a>\
-<a href="javascript:$(\'#add\').popover(\'hide\');" class="btn">取消</a>';
+<a href="#" onclick="javascript:addARoute();$(\'#add\').popover(\'hide\');" class="btn btn-primary">确定</a>\
+<a href="#" onclick="javascript:$(\'#add\').popover(\'hide\');" class="btn">取消</a>';
   $('#add').popover({
     html : true,
     placement : 'bottom',
@@ -222,8 +222,8 @@ function regToolbarEvents() {
 
   var deletePopoverDialog = '\
 <p class="text-error">确定要删除这条线路吗？</p>\
-<a href="javascript:deleteARoute();$(\'#delete\').popover(\'hide\');" class="btn">确定</a>\
-<a href="javascript:$(\'#delete\').popover(\'hide\');" class="btn btn-primary">取消</a>';
+<a href="#" onclick="javascript:deleteARoute();$(\'#delete\').popover(\'hide\');" class="btn">确定</a>\
+<a href="#" onclick="javascript:$(\'#delete\').popover(\'hide\');" class="btn btn-primary">取消</a>';
   $('#delete').popover({
     html : true,
     placement : 'bottom',
@@ -344,8 +344,8 @@ function regUserAdminEvent() {
     var userid = $(this).data('userid');
     var popover = '\
 <p class="text-error">您确认要删除这个用户吗？</p>\
-<a href="javascript:delete_a_user_event_handler(\'' + userid + '\', true)" class="btn">确定</a>\
-<a href="javascript:delete_a_user_event_handler(\'' + userid + '\', false)" class="btn btn-primary">取消</a>\
+<a href="#" onclick="javascript:delete_a_user_event_handler(\'' + userid + '\', true)" class="btn">确定</a>\
+<a href="#" onclick="javascript:delete_a_user_event_handler(\'' + userid + '\', false)" class="btn btn-primary">取消</a>\
     ';
     $(this).
       popover({html:true, placement:'bottom', trigger:'manual', title:'确认', content:popover, container : 'body'}).
@@ -360,8 +360,8 @@ function regUserAdminEvent() {
 <button data-permissions="10" class="btn btn-mini active">查看线路</button>\
 <button data-permissions="5" class="btn btn-mini btn-warning">修改线路</button>\
 </div>\
-<a href="javascript:addAUser();" class="btn btn-primary">确定</a>\
-<a href="javascript:$(\'#addUser\').popover(\'hide\');" class="btn">取消</a>';
+<a href="#" onclick="javascript:addAUser();" class="btn btn-primary">确定</a>\
+<a href="#" onclick="javascript:$(\'#addUser\').popover(\'hide\');" class="btn">取消</a>';
   $('#addUser').popover({
     html: true,
     placement: 'bottom',
