@@ -136,3 +136,11 @@ a:hover
 {
   height: 400px;
 }
+
+.device-detective
+{
+  height: 0px !important;
+  width: 0px !important;
+  margin: 0px !important;
+  padding: 0px !important;
+}
