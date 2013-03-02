@@ -219,13 +219,22 @@ function loadARoute(routeId, admin) {
 $(document).ready(function(){
   //主页的事件绑定
   if(typeof(controller) != 'undefined' && controller == 'default') {
+
+    gHideSide = false;
+
     $('.sidebar-nav a[href="#showRoute"]').click(function(e) {
       var routeId = $(this).attr('routeId');
       //routeId = +(routeId);
       loadARoute(routeId);
-    }).on('shown', initMap);
 
-    gHideSide = false;
+      //隐藏侧边栏时，点击线路后收起侧边栏
+      if(gHideSide) {
+        var sideWidth = $('.container-fluid div.span3').width();
+        $('.container-fluid div.span3').animate(
+          {left:-sideWidth},
+          'fast');
+      }
+    }).on('shown', initMap);
 
     $('#showSide').mouseenter(function() {
       if(gHideSide) {
