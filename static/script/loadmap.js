@@ -245,6 +245,10 @@ $(document).ready(function(){
     });
 
     $('#searchInput').keyup(searchEventHandler);
+
+    //响应式设计事件
+    $(window).resize(onWindowResize);
+    onWindowResize();
   }
 });
 
@@ -255,6 +259,15 @@ function searchEventHandler() {
   var selectorShow = 'li.routesListLi a:contains("' + keyword + '")';
   $(selectorHide).fadeOut('fast');
   $(selectorShow).fadeIn('fast');
+}
+
+//窗口尺寸变更事件，ready时会触发
+function onWindowResize() {
+  if($('.visible-phone').css('display') != 'none') {
+    //手机上自动收起侧边栏
+    if(!gHideSide)
+      toggleSide();
+  }
 }
 
 //控制侧边栏
