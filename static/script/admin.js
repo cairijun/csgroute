@@ -447,8 +447,8 @@ function addAUser() {
 
 function adminSearchEventHandler() {
   var keyword = $('#searchInput').val();
-  var selectorHide = 'div.btn-group-vertical button:not(:contains("' + keyword + '"))';
-  var selectorShow = 'div.btn-group-vertical button:contains("' + keyword + '")';
+  var selectorHide = 'div.btn-group-vertical button:not(:contains(' + keyword + '))';
+  var selectorShow = 'div.btn-group-vertical button:contains(' + keyword + ')';
   $(selectorHide).fadeOut('fast');
   $(selectorShow).fadeIn('fast');
 }
