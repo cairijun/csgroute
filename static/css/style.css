@@ -132,9 +132,11 @@ a:hover
   max-height: 530px;
 }
 
-#summary
-{
-  height: 400px;
+@media (min-width: 767px) {
+  #summary
+  {
+    height: 400px;
+  }
 }
 
 .device-detective
