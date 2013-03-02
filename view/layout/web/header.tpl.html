@@ -7,16 +7,13 @@
       </a>
       <a class="brand" href="/"><?=c('site_name')?></a>
       <div class="nav-collapse">
+        <?php if(!(g('c') == 'app' && g('a') == 'login')): ?>
         <ul class="nav">
           <li<?php if( g('c') == 'default' ): ?> class="active"<?php endif; ?>><a href="?c=default">首页</a></li>
           <li<?php if( g('c') == 'admin' ): ?> class="active"<?php endif; ?>><a href="?c=admin">管理</a></li>
         </ul>
+        <?php endif; ?>
       </div><!--/.nav-collapse -->
-      <form id="loginform" class="navbar-form pull-right<?php if($auth):?> navbar-hide<?php endif;?>">
-        <input class="input-small" type="text" id="username" placeholder="用户名">
-        <input class="input-small" type="password" id="password" placeholder="密码">
-        <button type="submit" class="btn">登录</button>
-      </form>
       <ul id="usermenu" class="nav pull-right<?php if(!$auth):?> navbar-hide<?php endif;?>">
         <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-user"></i>&nbsp<span><?=$username?></span><b class="caret"></b></a>

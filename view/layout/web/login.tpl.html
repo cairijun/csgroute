@@ -5,6 +5,7 @@
     <title><?=$top_title . ' | ' . c('site_name') ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/css/style.css" rel="stylesheet">
     <link href="static/css/bootstrap-responsive.min.css" rel="stylesheet">
     <style type="text/css">
       div.row
@@ -14,25 +15,36 @@
         left: 50%;
         margin: 0px;
       }
-      div.well
+      div.well,div.span6
       {
         margin: 0px;
+      }
+      #loginbox
+      {
+        margin-left: 50px;
+        margin-right: 50px;
       }
     </style>
   </head>
   <body>
+    <?php @include_once( dirname(__FILE__) ) . DS . 'header.tpl.html'; ?>  
     <div class="container">
       <div class="row">
-        <div class="span5 well">
-          <form class="form-horizontal" id="loginform">
-            <legend>登录</legend>
-            <div class="alert alert-error hide">
-              <strong>登录失败！</strong>请检查用户名与密码。
+        <div class="span6">
+          <img src="./static/image/logo_large.png" />
+          <div id="loginbox">
+            <div class="well">
+              <form class="form-horizontal" id="loginform">
+                <legend>登录</legend>
+                <div class="alert alert-error hide">
+                  <strong>登录失败！</strong>请检查用户名与密码。
+                </div>
+                <input class="span2" type="text" id="username" placeholder="用户名">
+                <input class="span2" type="password" id="password" placeholder="密码">
+                <button type="submit" class="btn btn-primary">登录</button>
+              </form>
             </div>
-            <input class="span2" type="text" id="username" placeholder="用户名">
-            <input class="span2.5" type="password" id="password" placeholder="密码">
-            <button type="submit" class="btn btn-primary">登录</button>
-          </form>
+          </div>
         </div>
       </div>
     </div>
@@ -50,7 +62,7 @@
     <script src="static/script/app.js"></script>
 
     <script>
-      $(document).ready(function() {
+      $(window).load(function() {
         var adjustPosition = function() {
           $('div.row').
             css('margin-top', -($('div.row').height() / 2) + 'px').
