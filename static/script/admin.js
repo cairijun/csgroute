@@ -86,8 +86,7 @@ function saveARoute() {
 function addARoute() {
   var _routeName = $('#routeName').val();
   //向列表插入新线路（线路Id用`# + 线路名称`表示，后端会区分insert还是update）
-  $('<button type="button" style="text-align: left;padding-left: 8px;" class="btn btn-block"></button>').
-    data('id', '#' + _routeName).
+  $('<button type="button" style="text-align: left;padding-left: 8px;" class="btn btn-block" data-id="#"></button>').
     text(_routeName).
     appendTo('.btn-group-vertical').
     button('toggle');
@@ -150,8 +149,11 @@ function regRoutesListEvents() {
         loadARoute(routeIdToGo);
         setMode('normal');
         $('#tabModal').modal('hide');
+        //如果之前为新线路，则从列表中删除
+        if(previousId == '#')
+          $('.btn-group-vertical button[data-id="#"]').remove();
       }, function() {
-        $('.btn-group-vertical button[routeId="' + previousId + '"]').button('toggle');
+        $('.btn-group-vertical button[data-id="' + previousId + '"]').button('toggle');
       });
     }
   });
