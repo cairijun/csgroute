@@ -1,10 +1,17 @@
 <?php
 function xssf($data, $is_json = false)
 {
+    $ret = '';
     if($is_json)
-        return htmlspecialchars($data, ENT_NOQUOTES | ENT_HTML401, 'UTF-8', false);
+        $ret = htmlspecialchars($data, ENT_NOQUOTES | ENT_HTML401, 'UTF-8', false);
     else
-        return htmlspecialchars($data, ENT_COMPAT | ENT_HTML401, 'UTF-8', false);
+        $ret = htmlspecialchars($data, ENT_COMPAT | ENT_HTML401, 'UTF-8', false);
+    if($data != $ret)
+        add_a_log(
+            'app.function.php:xssf()',
+            'possible_xss',
+            $_COOKIE['USERNAME'] . ',' . $data);
+    return $ret;
 }
 
 function pass_hash($passhash, $salt)
@@ -45,10 +52,7 @@ function check_auth()
                 }
                 else
                 {
-                    add_a_log(
-                        'app.function.php:check_auth():39',
-                        'check_auth_error',
-                        $_COOKIE['USERNAME'] . ': UA-CHECK ERROR');
+                    $GLOBALS['AUTH_ERROR'] = 'ua_check_error';
                     reset_all($userid);
                     return false;
                 }
@@ -56,10 +60,7 @@ function check_auth()
         }
         else
         {
-            add_a_log(
-                'app.function.php:check_auth():50',
-                'check_auth_error',
-                $_COOKIE['USERNAME'] . ': TS-CHECK ERROR');
+            $GLOBALS['AUTH_ERROR'] = 'ts_check_error';
             reset_all($userid);
             return false;
         }
@@ -152,6 +153,10 @@ function change_password($userid, $oldpasshash, $newpasshash)
 
 function add_a_log($position, $type, $content)
 {
+    $auth_error = g('AUTH_ERROR');
+    if($auth_error != null && strlen($auth_error) > 0)
+        $content = $content . '(' . $auth_error . ')';
+
     $sql = prepare(
         "INSERT INTO `log` (`position`, `type`, `ip`, `ua`, `content`) VALUES (?s, ?s, ?s, ?s, ?s)",
         array($position, $type, $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'], $content));
@@ -162,7 +167,16 @@ function anti_csrf($check_token = false)
 {
     //检查REFERER头
     if(!isset($_SERVER['HTTP_REFERER']) || (stripos($_SERVER['HTTP_REFERER'], c('site_domain')) === false))
+    {
+        $log_content = sprintf('%s,%s,c=%s&a=%s',
+            $_COOKIE['USERNAME'], $_SERVER['HTTP_REFERER'], g('c'), g('a'));
+
+        add_a_log(
+            'app.function.php:anti_csrf()',
+            'csrf_invalid_referer',
+            $log_content);
         output_403();
+    }
      
     if($check_token)
     {
@@ -170,6 +184,13 @@ function anti_csrf($check_token = false)
         //检查令牌
         if($tmp)
             return generate_post_token();
+
+        $log_content = sprintf('%s,c=%s&a=%s',
+            $_COOKIE['USERNAME'], g('c'), g('a'));
+        add_a_log(
+            'app.function.php:anti_csrf()',
+            'csrf_invalid_token',
+            $log_content);
         output_403();
     }
 }
@@ -193,7 +214,7 @@ function encrypt_transfer_data($data, $key = null)
 {
     if($key == null)
         $key = g('KEY');
-    else
+    if($key == null)
         output_403();
 
     $iv = substr(md5(uniqid(mt_rand() . '', true)), 0, 16);
@@ -207,7 +228,7 @@ function decrypt_transfer_data($data, $key = null)
 {
     if($key == null)
         $key = g('KEY');
-    else
+    if($key == null)
         output_403();
 
     $iv = substr($data, 0, 16);

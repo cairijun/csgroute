@@ -76,7 +76,13 @@ function check_permissions($userid, $permissions)
     $sql = prepare(
         "SELECT `permissions` FROM `users` WHERE `id` = ?i",
         array($userid));
-    return get_var($sql) <= $permissions;
+    if(get_var($sql) <= $permissions)
+        return true;
+    else
+    {
+        $GLOBALS['AUTH_ERROR'] = 'permissions_error';
+        return false;
+    }
 }
 
 function get_users_list()
