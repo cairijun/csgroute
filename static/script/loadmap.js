@@ -164,12 +164,15 @@ function loadARoute(routeId, admin) {
   }
   if(routeId == '#') {
     var color = gLine.strokeColor;//保存原线路颜色
+    var lineName = gLine.name;//保存原线路的名称
     clearMap();//如果是新建线路，直接清除地图
     gLine = new google.maps.Polyline({
       editable : true,
       map : map,
       strokeColor : color
     });
+    gLine.id = '#';
+    gLine.name = lineName;
     google.maps.event.addListener(gLine, 'rightclick', function(e) {
       if(gAddMode && ('vertex' in e)) {
         gLine.getPath().removeAt(e.vertex);
@@ -178,7 +181,6 @@ function loadARoute(routeId, admin) {
     gInfoWindow = new google.maps.InfoWindow({});
     return true;
   }
-  getKey();
   $.get('?c=default&a=ajax_getroutes&route_id=' + routeId, function(d) {
     var data = parseEncryptedData(d);
     var line = data[0].line;
