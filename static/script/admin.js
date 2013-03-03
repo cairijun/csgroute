@@ -140,6 +140,8 @@ function regRoutesListEvents() {
   $('.btn-group-vertical button').off('.list').on('click.list', function() {
     var routeIdToGo = $(this).data('id');
     var previousId = $('.btn-group-vertical button.active').data('id');
+    if(routeIdToGo == previousId)
+      return;
     if($('#save').hasClass('disabled')) {
       loadARoute(routeIdToGo);
       setMode('normal');
