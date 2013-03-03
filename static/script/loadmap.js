@@ -1,7 +1,7 @@
 //地图初始化
 function initMap(container) {
   if(typeof(map) == 'undefined' || map == null) {
-    var centerLatLng = new google.maps.LatLng(23.066944,113.386667);
+    var centerLatLng = new google.maps.LatLng(23.019762029727456,113.12095664572846);
     var options = {
       zoom : 14,
       center : centerLatLng,
