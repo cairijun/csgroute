@@ -13,7 +13,9 @@ function initMap(container) {
     if(typeof(controller) != 'undefined' && controller == 'default') {
       //测距功能按键与管理页面冲突，所以只在查看页面加载
       gRuleControl = new RuleControl(map);
+      gLocatorControl = new LocatorControl(map);
       map.controls[google.maps.ControlPosition.RIGHT_TOP].push(gRuleControl.getDomElement());
+      map.controls[google.maps.ControlPosition.RIGHT_TOP].push(gLocatorControl.getDomElement());
     }
     gLine = null;
     gMarkersArray = [];
@@ -354,7 +356,7 @@ MarkerLabel.prototype.onRemove = function() {
 MarkerLabel.prototype.setPosition = function(pos) {
   this._position = pos;
   this.draw();
-}
+};
 
 //自定一个RuleControl控件用于测距
 function RuleControl(map) {
@@ -371,7 +373,7 @@ function RuleControl(map) {
   this._div = div;
   this._line = new google.maps.Polyline({editable:true, geodesic:true, map:map, strokeWeight:2});
 
-  _this = this;
+  var _this = this;
   google.maps.event.addListener(map, 'click', function(e) {
     _this._line.getPath().push(e.latLng);
   });
@@ -419,3 +421,100 @@ RuleControl.prototype.getDistance = function() {
   length = Math.round(length) / 100;
   this._div.innerHTML = '测距：' + length + ' km';
 };
+
+function LocatorControl(map) {
+  this._map = map;
+  this._isEnabled = true;
+  this._isUsable = true;
+  var div = document.createElement('div');
+  div.style.border = '1px solid';
+  div.style.backgroundColor = 'white';
+  div.style.padding = '3px';
+  div.style.position = 'absolute';
+  div.style.boxShadow = '2px 2px 4px #000';
+  div.style.width = 'auto';
+  div.style.margin = '5px';
+  div.innerHTML = '定位中……';
+  this._div = div;
+  var _this = this;
+
+  if("geolocation" in navigator) {
+    this._initOverlay();
+    this._watchId = navigator.geolocation.watchPosition(
+      function(p) {
+      _this.updatePosition(p);
+    },
+      function(e) {
+        _this._div.innerHTML = '定位失败';
+        _this._isEnabled = false;
+      }
+    );
+  }
+  else {
+    this._div.innerHTML = '此浏览器不支持定位';
+    this._isUsable = false;
+  }
+
+  google.maps.event.addDomListener(this._div, 'dblclick', function() {
+    if(!_this._isUsable)
+      return;
+    if(_this._isEnabled) {
+      navigator.geolocation.clearWatch(_this._watchId);
+      _this._div.innerHTML = '停止定位';
+      _this._isEnabled = false;
+    }
+    else {
+      _this._div.innerHTML = '定位中……';
+      _this._isEnabled = true;
+      _this._watchId = navigator.geolocation.watchPosition(
+        function(p) {
+        _this.updatePosition(p);
+      },
+        function(e) {
+          _this._div.innerHTML = '定位失败';
+          _this._isEnabled = false;
+        }
+      );
+    }
+  });
+
+  google.maps.event.addDomListener(this._div, 'click', function() {
+    if(_this._isUsable && _this._isEnabled && _this._marker.getPosition()) {
+      _this._map.setCenter(_this._marker.getPosition());
+    }
+  });
+};
+
+LocatorControl.prototype.getDomElement = function() {
+  return this._div;
+};
+
+LocatorControl.prototype.updatePosition = function(p) {
+  var lat = p.coords.latitude;
+  var lng = p.coords.longitude;
+  var acr = p.coords.accuracy;
+  var pos = new google.maps.LatLng(lat, lng);
+  this._marker.setPostiton(pos);
+  this._circle.setCenter(pos);
+  this._circle.setRadius(acr);
+  this._div.innerHTML = '定位成功' + lat;
+};
+
+LocatorControl.prototype._initOverlay = function() {
+  var _markerIcon = new google.maps.MarkerImage('./static/image/bullet_blue.png');
+  _markerIcon.anchor = new google.maps.Point(16, 16);
+
+  this._marker = new google.maps.Marker({flat: true, icon: _markerIcon, map: this._map});
+  this._circle = new google.maps.Circle({
+    fillColor: '#0AF', fillOpacity: 0.25, strokeColor: '#0AF', strokeWeight: 1.5, clickable: false, map: this._map
+  });
+};
+
+LocatorControl.prototype._destroyOverlay = function() {
+  if(this._marker)
+    this._marker.setMap(null);
+  if(this._circle)
+    this._circle.setMap(null);
+  this._marker = null;
+  this._circle = null;
+}
