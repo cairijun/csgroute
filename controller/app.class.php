@@ -16,6 +16,7 @@ class appController extends coreController
     function about()
     {
         $about_text = file_get_contents(AROOT . 'static' . DS . 'about.txt');
+        $about_text = str_replace('%VERSION%', c('version'), $about_text);
         if(!($about_text === false))
             info_page(nl2br($about_text), '关于');
     }
