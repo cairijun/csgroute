@@ -358,7 +358,7 @@ function regUserAdminEvent() {
 
   var popover = '\
 <input id="newUsername" class="input-block-level" type="text" placeholder="用户名(32字内，不含&quot;&<>)">\
-<input id="newUserPassword" class="input-block-level" type="password" placeholder="密码">\
+<input id="newUserPassword" class="input-block-level" type="password" placeholder="密码(8位或以上)">\
 <input id="repeatPassword" class="input-block-level" type="password" placeholder="确认密码">\
 <div id="newUserPermissions" class="btn-group" style="margin:0px 0px 10px; display: block;" data-toggle="buttons-radio">\
 <button data-permissions="10" class="btn btn-mini active">查看线路</button>\
@@ -400,11 +400,15 @@ function delete_a_user_event_handler(userid, ensure) {
 function addAUser() {
   var username = $('#newUsername').val();
   var password = $('#newUserPassword').val();
+  if(password.length < 8) {
+    $('#newUserPassword').val('').focus();
+    return;
+  }
   if(password != $('#repeatPassword').val()) {
     $('#repeatPassword').val('').focus();
     return;
   }
-  if(username.length > 32 || username.search(/[&<>\"]/) >= 0) {
+  if(username.length == 0 || username.length > 32 || username.search(/[&<>\"]/) >= 0) {
     $('#newUsername').val('').focus();
     return;
   }
