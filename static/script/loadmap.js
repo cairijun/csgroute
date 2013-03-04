@@ -13,10 +13,10 @@ function initMap(container) {
     if(typeof(controller) != 'undefined' && controller == 'default') {
       //测距功能按键与管理页面冲突，所以只在查看页面加载
       gRuleControl = new RuleControl(map);
-      gLocatorControl = new LocatorControl(map);
       map.controls[google.maps.ControlPosition.RIGHT_TOP].push(gRuleControl.getDomElement());
-      map.controls[google.maps.ControlPosition.RIGHT_TOP].push(gLocatorControl.getDomElement());
     }
+    gLocatorControl = new LocatorControl(map);
+    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(gLocatorControl.getDomElement());
     gLine = null;
     gMarkersArray = [];
     gInfoWindow = null;
@@ -494,10 +494,10 @@ LocatorControl.prototype.updatePosition = function(p) {
   var lng = p.coords.longitude;
   var acr = p.coords.accuracy;
   var pos = new google.maps.LatLng(lat, lng);
-  this._marker.setPostiton(pos);
+  this._marker.setPosition(pos);
   this._circle.setCenter(pos);
   this._circle.setRadius(acr);
-  this._div.innerHTML = '定位成功' + lat;
+  this._div.innerHTML = '定位成功';
 };
 
 LocatorControl.prototype._initOverlay = function() {
