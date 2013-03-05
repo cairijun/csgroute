@@ -11,6 +11,11 @@ class defaultController extends appController
 	
 	function index()
 	{
+        if(!g('gAuth'))
+        {
+            header('Location: ?c=app&a=login');
+            exit();
+        }
 		$data['title'] = $data['top_title'] = '首页';
         $data['routesList'] = get_routes_list();
         $data['auth'] = g('gAuth');
@@ -22,7 +27,13 @@ class defaultController extends appController
     function ajax_getroutes()
     {
         if(!g('gAuth'))
+        {
+            add_a_log(
+                'default.class.php:ajax_getroutes()',
+                'get_route_denied',
+                $_COOKIE['USERNAME'] . ',' . v('route_id'));
             output_403();
+        }
         anti_csrf();
         $route = get_a_route_by_id($_GET['route_id']);
         $send_array = array();

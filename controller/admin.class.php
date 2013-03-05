@@ -11,11 +11,16 @@ class adminController extends appController
 	
 	function index()
 	{
+        if(!g('gAuth'))
+        {
+            header('Location:index.php?c=app&a=login');
+            exit();
+        }
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
         {
             add_a_log(
-                'admin.class.php:index():16',
-                'Admin page error',
+                'admin.class.php:index()',
+                'admin_page_denied',
                 $_COOKIE['USERNAME']);
             header('HTTP/1.1 403 Forbidden');
             info_page('您无权访问此页面！');
@@ -38,9 +43,9 @@ class adminController extends appController
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
         {
             add_a_log(
-                'admin.class.php:ajax_save():38',
-                'Save route error',
-                $_COOKIE['USERNAME']);
+                'admin.class.php:ajax_save()',
+                'save_route_denied',
+                $_COOKIE['USERNAME'] . ',' . $_POST['routeId']);
             output_403();
         }
         $newToken = anti_csrf(true);
@@ -78,9 +83,9 @@ class adminController extends appController
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
         {
             add_a_log(
-                'admin.class.php:ajax_delete():73',
-                'Delete route error',
-                $_COOKIE['USERNAME']);
+                'admin.class.php:ajax_delete()',
+                'delete_route_denied',
+                $_COOKIE['USERNAME'] . ',' . $_POST['routeId']);
             output_403();
         } 
         $newToken = anti_csrf(true);
@@ -95,9 +100,9 @@ class adminController extends appController
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 0))
         {
             add_a_log(
-                'admin.class.php:ajax_add_a_user():89',
-                'Add user error',
-                $_COOKIE['USERNAME']);
+                'admin.class.php:ajax_add_a_user()',
+                'add_user_denied',
+                $_COOKIE['USERNAME'] . ',' . $_POST['username']);
             output_403();
         } 
         $newToken = anti_csrf(true);
@@ -109,6 +114,10 @@ class adminController extends appController
             $permissions = intval($_POST['permissions']);
             if($permissions == 0)
             {
+                add_a_log(
+                    'admin.class.php:ajax_add_a_user()',
+                    'add_root_user_denied',
+                    $_COOKIE['USERNAME'] . ',' . $_POST['username']);
                 return ajax_echo(encrypt_transfer_data(json_encode(
                     array(
                         'errno' => -2,
@@ -131,6 +140,10 @@ class adminController extends appController
         }
         else
         {
+            add_a_log(
+                'admin.class.php:ajax_add_a_user()',
+                'add_user_success',
+                $_COOKIE['USERNAME'] . ',' . $_POST['username']);
             ajax_echo(encrypt_transfer_data(json_encode(
                 array(
                     'errno' => 0,
@@ -146,9 +159,9 @@ class adminController extends appController
         if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 0))
         {
             add_a_log(
-                'admin.class.php:ajax_delete_a_user():128',
-                'Delete user error',
-                $_COOKIE['USERNAME']);
+                'admin.class.php:ajax_delete_a_user()',
+                'delete_user_error',
+                $_COOKIE['USERNAME'] . ',' . $_POST['userid']);
             output_403();
         }
         $newToken = anti_csrf(true);

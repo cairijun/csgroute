@@ -1,33 +1,68 @@
 $(document).ready(function() {
+  if(typeof(page) != 'undefined' && page == 'login')
+    regLoginPageEvents();
+  else
+    regMainPageEvents();
+});
+
+function regLoginPageEvents() {
+  var lastUsername = window.localStorage.getItem('LAST_USERNAME');
+  if(lastUsername) {
+    $('#username').val(lastUsername);
+    $('#password').focus();
+  }
+  else
+    $('#username').focus();
+
   $('#loginform').submit(function(e) {
     e.preventDefault();
-    var password = $('#password').val();
-    var _passhash = get_pass_hash(password, $('#username').val());
-    $.post(
-      '?c=app&a=ajax_login',
-      {
-        username: $('#username').val(),
-        passhash: _passhash + ''
+    login(
+      $('#username').val(),
+      $('#password').val(),
+      function(ret) {
+        window.localStorage.setItem('LAST_USERNAME', $('#username').val());
+        location.href = 'index.php'
+        /*
+        if(navigateTo)
+          location.href = navigateTo;
+        else
+          location.href = 'index.php'
+         */
       },
-      function(d) {
-        var ret = JSON.parse(d);
-        if(ret.errno == 0) {
-          $('.dropdown span').text(ret.msg);
-          $('#loginform').addClass('navbar-hide');
-          $('#usermenu').removeClass('navbar-hide');
-        }
-        else {
-          $('#loginform button').popover(
-            {placement:'bottom', trigger:'manual', title:'错误', content:ret.msg}).
-            popover('show');
-            window.setTimeout("$('#loginform button').popover('hide')", 2000);
-        }
+      function(ret) {
+        $('#loginform div.alert').fadeIn();
+        $('#password').focus();
       }
     );
   });
+}
 
+function regMainPageEvents() {
   $('#changePasswordModal').on('hide', function(){$('#alertContainer .alert').remove();});
-});
+}
+
+function login(username, password, success, fail) {
+  //密码hash和AES密钥一同RSA加密
+  var key = CryptoJS.lib.WordArray.random(24).toString(CryptoJS.enc.Base64);
+  $.post(
+    '?c=app&a=ajax_login',
+    {
+      username: username,
+      key:
+        rsaEncrypt(
+          JSON.stringify(
+            {key: key, passhash: get_pass_hash(password, username)}))
+    },
+    function(d) {
+      var ret = $.parseJSON(d);
+      if(ret.errno == 0) {
+        window.localStorage.setItem('KEY', key);
+        success(ret);
+      }
+      else
+        fail(ret);
+    }).fail(fail);
+}
 
 function get_pass_hash(password, username) {
     var _passhash = CryptoJS.SHA1(password);
@@ -40,8 +75,7 @@ function logout() {
   $.get(
     '?c=app&a=ajax_logout',
     function() {
-      $('#usermenu').addClass('navbar-hide');
-      $('#loginform').removeClass('navbar-hide');
+      location.href = '?c=app&a=login';
     }
   );
 }
@@ -53,20 +87,20 @@ function change_password() {
 
 function post_new_password() {
   var inconsistentAlert = '\
-  <div id="inconsistentAlert" class="alert alert-error fade in">\
-  <button type="button" class="close" data-dismiss="alert">&times;</button>\
-  <strong>错误！</strong>新密码两次输入不一致。\
-  </div>';
+<div id="inconsistentAlert" class="alert alert-error fade in">\
+<button type="button" class="close" data-dismiss="alert">&times;</button>\
+<strong>错误！</strong>新密码两次输入不一致。\
+</div>';
   var oldpasswordAlert = '\
-  <div id="oldPasswordAlert" class="alert alert-error fade in">\
-  <button type="button" class="close" data-dismiss="alert">&times;</button>\
-  <strong>错误！</strong>旧密码输入错误。\
-  </div>';
+<div id="oldPasswordAlert" class="alert alert-error fade in">\
+<button type="button" class="close" data-dismiss="alert">&times;</button>\
+<strong>错误！</strong>旧密码输入错误。\
+</div>';
   var successAlert = '\
-  <div id="successAlert" class="alert alert-success fade in">\
-  <button type="button" class="close" data-dismiss="alert">&times;</button>\
-  <strong>修改成功！</strong>请重新登录。\
-  </div>';
+<div id="successAlert" class="alert alert-success fade in">\
+<button type="button" class="close" data-dismiss="alert">&times;</button>\
+<strong>修改成功！</strong>请重新登录。\
+</div>';
 
   $('#alertContainer .alert').alert('close');
   if($('#newpassword').val() != $('#repeatpassword').val()) {
@@ -74,25 +108,23 @@ function post_new_password() {
     $('#newpassword').focus();
   }
   else {
-    $.post(
+    encryptedPost(
       '?c=app&a=ajax_change_password',
       {
         oldpasshash:get_pass_hash($('#oldpassword').val(), $('.dropdown span').text()),
         newpasshash:get_pass_hash($('#newpassword').val(), $('.dropdown span').text())
       },
-      function(d) {
-        var ret = $.parseJSON(d);
+      function(ret) {
         if(ret.errno == 0) {
           $(successAlert).appendTo('#alertContainer');
           setTimeout("$('#changePasswordModal').modal('hide');", 1500);
-          $('#usermenu').addClass('navbar-hide');
-          $('#loginform').removeClass('navbar-hide');
+          $('#changePasswordModal').on('hidden', function() { location.href='?c=app&a=login';});
         }
         else if(ret.errno == -1) {
           $(oldpasswordAlert).appendTo('#alertContainer');
           $('#oldpassword').val('').focus();
         }
-      }
+      },function(){}
     );
   }
 }
@@ -119,25 +151,11 @@ function showErrorModal(msg) {
 
 //获取加密传输用密钥
 function getKey() {
-  var key = window.sessionStorage.getItem('KEY');
-  if(key == null) {
-    //sessionStorage中没有密钥，生成一个新的并通知服务器
-    key = CryptoJS.lib.WordArray.random(24).toString(CryptoJS.enc.Base64);
-    $.post(
-      '?c=app&a=ajax_set_key',
-      {
-        key : rsaEncrypt(key)
-      },
-      function(data) {
-        responseObj = $.parseJSON(data);
-        if(responseObj.code != 0)
-          return false;
-        else
-          window.sessionStorage.setItem('KEY', key);
-      }
-    );
-  }
-  return key;
+  var key = window.localStorage.getItem('KEY');
+  if(key != null)
+    return key;
+  else
+    return false;
 }
 
 //用RSA公钥加密数据

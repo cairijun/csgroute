@@ -1,7 +1,7 @@
 //地图初始化
 function initMap(container) {
   if(typeof(map) == 'undefined' || map == null) {
-    var centerLatLng = new google.maps.LatLng(23.066944,113.386667);
+    var centerLatLng = new google.maps.LatLng(23.019762029727456,113.12095664572846);
     var options = {
       zoom : 14,
       center : centerLatLng,
@@ -15,6 +15,8 @@ function initMap(container) {
       gRuleControl = new RuleControl(map);
       map.controls[google.maps.ControlPosition.RIGHT_TOP].push(gRuleControl.getDomElement());
     }
+    gLocatorControl = new LocatorControl(map);
+    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(gLocatorControl.getDomElement());
     gLine = null;
     gMarkersArray = [];
     gInfoWindow = null;
@@ -164,12 +166,15 @@ function loadARoute(routeId, admin) {
   }
   if(routeId == '#') {
     var color = gLine.strokeColor;//保存原线路颜色
+    var lineName = gLine.name;//保存原线路的名称
     clearMap();//如果是新建线路，直接清除地图
     gLine = new google.maps.Polyline({
       editable : true,
       map : map,
       strokeColor : color
     });
+    gLine.id = '#';
+    gLine.name = lineName;
     google.maps.event.addListener(gLine, 'rightclick', function(e) {
       if(gAddMode && ('vertex' in e)) {
         gLine.getPath().removeAt(e.vertex);
@@ -178,7 +183,6 @@ function loadARoute(routeId, admin) {
     gInfoWindow = new google.maps.InfoWindow({});
     return true;
   }
-  getKey();
   $.get('?c=default&a=ajax_getroutes&route_id=' + routeId, function(d) {
     var data = parseEncryptedData(d);
     var line = data[0].line;
@@ -219,13 +223,22 @@ function loadARoute(routeId, admin) {
 $(document).ready(function(){
   //主页的事件绑定
   if(typeof(controller) != 'undefined' && controller == 'default') {
+
+    gHideSide = false;
+
     $('.sidebar-nav a[href="#showRoute"]').click(function(e) {
       var routeId = $(this).attr('routeId');
       //routeId = +(routeId);
       loadARoute(routeId);
-    }).on('shown', initMap);
 
-    gHideSide = false;
+      //隐藏侧边栏时，点击线路后收起侧边栏
+      if(gHideSide) {
+        var sideWidth = $('.container-fluid div.span3').width();
+        $('.container-fluid div.span3').animate(
+          {left:-sideWidth},
+          'fast');
+      }
+    }).on('shown', initMap);
 
     $('#showSide').mouseenter(function() {
       if(gHideSide) {
@@ -245,16 +258,29 @@ $(document).ready(function(){
     });
 
     $('#searchInput').keyup(searchEventHandler);
+
+    //响应式设计事件
+    $(window).resize(onWindowResize);
+    onWindowResize();
   }
 });
 
 //首页搜索框事件处理程序
 function searchEventHandler() {
   var keyword = $('#searchInput').val();
-  var selectorHide = 'li.routesListLi a:not(:contains("' + keyword + '"))';
-  var selectorShow = 'li.routesListLi a:contains("' + keyword + '")';
+  var selectorHide = 'li.routesListLi a:not(:contains(' + keyword + '))';
+  var selectorShow = 'li.routesListLi a:contains(' + keyword + ')';
   $(selectorHide).fadeOut('fast');
   $(selectorShow).fadeIn('fast');
+}
+
+//窗口尺寸变更事件，ready时会触发
+function onWindowResize() {
+  if($('.visible-phone').css('display') != 'none') {
+    //手机上自动收起侧边栏
+    if(!gHideSide)
+      toggleSide();
+  }
 }
 
 //控制侧边栏
@@ -330,7 +356,7 @@ MarkerLabel.prototype.onRemove = function() {
 MarkerLabel.prototype.setPosition = function(pos) {
   this._position = pos;
   this.draw();
-}
+};
 
 //自定一个RuleControl控件用于测距
 function RuleControl(map) {
@@ -347,7 +373,7 @@ function RuleControl(map) {
   this._div = div;
   this._line = new google.maps.Polyline({editable:true, geodesic:true, map:map, strokeWeight:2});
 
-  _this = this;
+  var _this = this;
   google.maps.event.addListener(map, 'click', function(e) {
     _this._line.getPath().push(e.latLng);
   });
@@ -395,3 +421,87 @@ RuleControl.prototype.getDistance = function() {
   length = Math.round(length) / 100;
   this._div.innerHTML = '测距：' + length + ' km';
 };
+
+function LocatorControl(map) {
+  this._map = map;
+  this._isEnabled = false;
+  this._isUsable = true;
+  var div = document.createElement('div');
+  div.style.border = '1px solid';
+  div.style.backgroundColor = 'white';
+  div.style.padding = '3px';
+  div.style.position = 'absolute';
+  div.style.boxShadow = '2px 2px 4px #000';
+  div.style.width = 'auto';
+  div.style.margin = '5px';
+  div.innerHTML = '定位停止';
+  this._div = div;
+  var _this = this;
+
+  if("geolocation" in navigator) {
+    this._initOverlay();
+  }
+  else {
+    this._div.innerHTML = '此浏览器不支持定位';
+    this._isUsable = false;
+  }
+
+  google.maps.event.addDomListener(this._div, 'click', function() {
+    if(!_this._isUsable)
+      return;
+    if(_this._isEnabled) {
+      navigator.geolocation.clearWatch(_this._watchId);
+      _this._div.innerHTML = '定位停止';
+      _this._isEnabled = false;
+    }
+    else {
+      _this._div.innerHTML = '定位中……';
+      _this._isEnabled = true;
+      _this._watchId = navigator.geolocation.watchPosition(
+        function(p) {
+        _this.updatePosition(p);
+      },
+      function(e) {
+        _this._div.innerHTML = '定位失败';
+        _this._isEnabled = false;
+      },
+      {enableHighAccuracy: true}
+      );
+    }
+  });
+};
+
+LocatorControl.prototype.getDomElement = function() {
+  return this._div;
+};
+
+LocatorControl.prototype.updatePosition = function(p) {
+  var lat = p.coords.latitude;
+  var lng = p.coords.longitude;
+  var acr = p.coords.accuracy;
+  var pos = new google.maps.LatLng(lat, lng);
+  this._marker.setPosition(pos);
+  this._circle.setCenter(pos);
+  this._circle.setRadius(acr);
+  this._map.setCenter(pos);
+  this._div.innerHTML = '定位成功';
+};
+
+LocatorControl.prototype._initOverlay = function() {
+  var _markerIcon = new google.maps.MarkerImage('./static/image/bullet_blue.png');
+  _markerIcon.anchor = new google.maps.Point(16, 16);
+
+  this._marker = new google.maps.Marker({flat: true, icon: _markerIcon, map: this._map});
+  this._circle = new google.maps.Circle({
+    fillColor: '#0AF', fillOpacity: 0.25, strokeColor: '#0AF', strokeWeight: 1.5, clickable: false, map: this._map
+  });
+};
+
+LocatorControl.prototype._destroyOverlay = function() {
+  if(this._marker)
+    this._marker.setMap(null);
+  if(this._circle)
+    this._circle.setMap(null);
+  this._marker = null;
+  this._circle = null;
+}
