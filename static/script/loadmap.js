@@ -424,7 +424,7 @@ RuleControl.prototype.getDistance = function() {
 
 function LocatorControl(map) {
   this._map = map;
-  this._isEnabled = true;
+  this._isEnabled = false;
   this._isUsable = true;
   var div = document.createElement('div');
   div.style.border = '1px solid';
@@ -434,33 +434,24 @@ function LocatorControl(map) {
   div.style.boxShadow = '2px 2px 4px #000';
   div.style.width = 'auto';
   div.style.margin = '5px';
-  div.innerHTML = '定位中……';
+  div.innerHTML = '定位停止';
   this._div = div;
   var _this = this;
 
   if("geolocation" in navigator) {
     this._initOverlay();
-    this._watchId = navigator.geolocation.watchPosition(
-      function(p) {
-      _this.updatePosition(p);
-    },
-      function(e) {
-        _this._div.innerHTML = '定位失败';
-        _this._isEnabled = false;
-      }
-    );
   }
   else {
     this._div.innerHTML = '此浏览器不支持定位';
     this._isUsable = false;
   }
 
-  google.maps.event.addDomListener(this._div, 'dblclick', function() {
+  google.maps.event.addDomListener(this._div, 'click', function() {
     if(!_this._isUsable)
       return;
     if(_this._isEnabled) {
       navigator.geolocation.clearWatch(_this._watchId);
-      _this._div.innerHTML = '停止定位';
+      _this._div.innerHTML = '定位停止';
       _this._isEnabled = false;
     }
     else {
@@ -470,17 +461,12 @@ function LocatorControl(map) {
         function(p) {
         _this.updatePosition(p);
       },
-        function(e) {
-          _this._div.innerHTML = '定位失败';
-          _this._isEnabled = false;
-        }
+      function(e) {
+        _this._div.innerHTML = '定位失败';
+        _this._isEnabled = false;
+      },
+      {enableHighAccuracy: true}
       );
-    }
-  });
-
-  google.maps.event.addDomListener(this._div, 'click', function() {
-    if(_this._isUsable && _this._isEnabled && _this._marker.getPosition()) {
-      _this._map.setCenter(_this._marker.getPosition());
     }
   });
 };
@@ -497,6 +483,7 @@ LocatorControl.prototype.updatePosition = function(p) {
   this._marker.setPosition(pos);
   this._circle.setCenter(pos);
   this._circle.setRadius(acr);
+  this._map.setCenter(pos);
   this._div.innerHTML = '定位成功';
 };
 
