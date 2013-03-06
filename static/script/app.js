@@ -72,6 +72,7 @@ function get_pass_hash(password, username) {
 }
 
 function logout() {
+  window.localStorage.setItem('KEY', '');
   $.get(
     '?c=app&a=ajax_logout',
     function() {
