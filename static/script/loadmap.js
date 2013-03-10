@@ -221,6 +221,16 @@ function loadARoute(routeId, admin) {
 }
 
 $(document).ready(function(){
+  //下载修正数据库
+  if(window.localStorage.getItem('ERROR_DB') == null) {
+    $.get('./static/error_db.json', function(data) {
+      gErrorDb = data;
+      window.localStorage.setItem('ERROR_DB', JSON.stringify(data));
+    });
+  }
+  else {
+    gErrorDb = $.parseJSON(window.localStorage.getItem('ERROR_DB'));
+  }
   //主页的事件绑定
   if(typeof(controller) != 'undefined' && controller == 'default') {
 
@@ -479,6 +489,22 @@ LocatorControl.prototype.updatePosition = function(p) {
   var lat = p.coords.latitude;
   var lng = p.coords.longitude;
   var acr = p.coords.accuracy;
+  var mapTypeId = this._map.getMapTypeId();
+  if(mapTypeId != 'satellite' && mapTypeId != 'hybrid' && mapTypeId != 'Satellitemap') {
+    //偏移修正
+    var deltaLat = (lat - gErrorDb.lat0) / 0.01;
+    var deltaLng = (lng - gErrorDb.lng0) / 0.01;
+    var latIndex = Math.round(deltaLat);
+    var lngIndex = Math.round(deltaLng);
+    var ratLat = deltaLat - latIndex;
+    var ratLng = deltaLng - lngIndex;
+    if(latIndex >= 0 && lngIndex >=0 && latIndex < gErrorDb.data.length - 1 && lngIndex < gErrorDb.data.length - 1) {
+      var offset = gErrorDb.data[latIndex][lngIndex];
+      lat += offset[0];
+      lng += offset[1];
+      acr += 30;
+    }
+  }
   var pos = new google.maps.LatLng(lat, lng);
   this._marker.setPosition(pos);
   this._circle.setCenter(pos);
