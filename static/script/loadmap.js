@@ -490,7 +490,7 @@ LocatorControl.prototype.updatePosition = function(p) {
   var lng = p.coords.longitude;
   var acr = p.coords.accuracy;
   var mapTypeId = this._map.getMapTypeId();
-  if(mapTypeId != 'satellite' && mapTypeId != 'hybrid' && mapTypeId != 'Satellitemap') {
+  if(mapTypeId != 'satellite' && mapTypeId != 'hybrid') {
     //偏移修正
     var deltaLat = (lat - gErrorDb.lat0) / 0.01;
     var deltaLng = (lng - gErrorDb.lng0) / 0.01;
