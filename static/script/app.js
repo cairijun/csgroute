@@ -72,6 +72,7 @@ function get_pass_hash(password, username) {
 }
 
 function logout() {
+  window.localStorage.setItem('KEY', '');
   $.get(
     '?c=app&a=ajax_logout',
     function() {
@@ -103,6 +104,10 @@ function post_new_password() {
 </div>';
 
   $('#alertContainer .alert').alert('close');
+  if($('#newpassword').val().length < 8) {
+    $('#newpassword').val('').focus();
+    return;
+  }
   if($('#newpassword').val() != $('#repeatpassword').val()) {
     $(inconsistentAlert).appendTo('#alertContainer');
     $('#newpassword').focus();
