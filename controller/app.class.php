@@ -4,7 +4,6 @@ include_once( CROOT . 'controller' . DS . 'core.class.php' );
 
 session_start();
 $gAuth = check_auth();
-session_start();
 
 class appController extends coreController
 {
@@ -17,8 +16,25 @@ class appController extends coreController
     function about()
     {
         $about_text = file_get_contents(AROOT . 'static' . DS . 'about.txt');
+        $about_text = str_replace('%VERSION%', c('version'), $about_text);
         if(!($about_text === false))
             info_page(nl2br($about_text), '关于');
+    }
+
+    //独立登录页面
+    function login()
+    {
+        $to = preg_replace('/[<>\'";]/', '', $_SERVER['HTTP_REFERER']);
+        if(!g('gAuth'))
+        {
+            $data['title'] = $data['top_title'] = '登录';
+            $data['to']  = $to;
+            return render($data, 'web', 'login');
+        }
+        elseif(v('to') != null)
+            header('Location:' . $to);
+        else
+            header('Location:index.php');
     }
 
 	// login check or something
@@ -27,10 +43,14 @@ class appController extends coreController
     {
         anti_csrf();
         $username = $_POST['username'];
-        $passhash = $_POST['passhash'];
-        if(user_login($username, $passhash))
+
+        $decrypted_key = json_decode(rsa_decrypt_data($_POST['key']), true);
+        $passhash = $decrypted_key['passhash'];
+        $key = $decrypted_key['key'];
+
+        if(user_login($username, $passhash, $key))
         {
-            add_a_log('app.class.php:ajax_login():23', 'login_success', $username);
+            add_a_log('app.class.php:ajax_login()', 'login_success', $username);
             ajax_echo(json_encode(
                 array(
                     'errno' => 0,
@@ -39,7 +59,7 @@ class appController extends coreController
         }
         else
         {
-            add_a_log('app.class.php:ajax_login():32', 'login_fail', $username);
+            add_a_log('app.class.php:ajax_login()', 'login_fail', $username);
             ajax_echo(json_encode(
                 array(
                     'errno' => -1,
@@ -57,68 +77,32 @@ class appController extends coreController
 
     function ajax_change_password()
     {
+        $_POST = parse_encrypted_post();
         anti_csrf();
         if(g('gAuth') && isset($_POST['oldpasshash']) && isset($_POST['newpasshash']))
             if(change_password($_COOKIE['USERID'], $_POST['oldpasshash'], $_POST['newpasshash']))
             {
                 add_a_log(
-                    'app.class.php:ajax_change_password():52',
+                    'app.class.php:ajax_change_password()',
                     'change_password_success',
                     $_COOKIE['USERNAME']);
-                ajax_echo(json_encode(
+                ajax_echo(encrypt_transfer_data(json_encode(
                     array(
                         'errno' => 0,
                         'msg' => '修改成功！'
-                    )));
+                    ))));
             }
             else{
                 add_a_log(
-                    'app.class.php:ajax_change_password():64',
+                    'app.class.php:ajax_change_password()',
                     'change_password_fail',
                     $_COOKIE['USERNAME']);
-                ajax_echo(json_encode(
+                ajax_echo(encrypt_transfer_data(json_encode(
                     array(
                         'errno' => -1,
                         'msg' => '修改失败！请检查旧密码。'
-                    )));
+                    ))));
             }
-    }
-
-    function ajax_set_key()
-    {
-        if(!g('gAuth'))
-            output_403();
-
-        $private_key_pem_file = '-----BEGIN RSA PRIVATE KEY-----
-MIICXAIBAAKBgQDVlB0xmT4/eSNixAX82h6FaqEGK2Z/iNtw0q35vGMk2r2zcgiX
-pILyoUgglbBcnl1ZKqIFcU48+FxWj6r4rEP+GlahzhiXYEFAj6nIRDXz/xY0Uefr
-la8hYG1Y5pNzVvCro9COxoZVcy64UCF6AquyI1fQr+uSLDWPIoU86qynmQIDAQAB
-AoGAJ8CHpoGlSl8brPhbPPLEF4T/L4zIaRhp75fm9cKQmX11LX8eBkuCa/KE4Du8
-NaDsMvpyaZzrOQHo/duDsQEvLjdAScFAd9BUy0z4uDbcudGonrs4w1WyKLrkFObj
-5TC3QfDBfUoY3PBhsePCseBWbj6r1Ykc2ivM7keSmEBlkuECQQD29rDCqJarW1PS
-wcNERIGkwJwuMUMG8IqVQUi7WPTsbEr5uzIGMhPqmxDSOPymxYj1XUnTojffHqhn
-C2CYOYudAkEA3WS0nJRJuYtk9OY7UrJC6gCha0o6SDJYOu6eEBiz9lLK28rw+HH+
-bsqXuJNftB9GfxInZDuELXW4FqrZHHmBLQJBAKSWohUJQGjxU7sJMXbk5TYEu9G5
-OP99/g4c1TkuvwR1473tuRgR9d4L/Djui8slqPJFevdVjEDh8L/EAFtTNq0CQFpn
-Cd06LBSo1/Oso6K0CeDVmxRdfgkHDcIat85o1+uIiS9Q4i8BFV0WOvfyrcy2TKoM
-tqsWJnYNsLsIzpjzAI0CQCc/mmkkxT4DSH2bt4ffGEkyLdU6pvtpFZyPoQ3gfbLP
-AZsVXk+Dp2qpkKdTM+H5bNnft5n5SJynNJ/KXvnevDo=
------END RSA PRIVATE KEY-----
-';
-        $private_key = openssl_pkey_get_private($private_key_pem_file);
-        if(isset($_POST['key']))
-        {
-            $key = '';
-            if(openssl_private_decrypt(base64_decode($_POST['key']), $key, $private_key))
-            {
-                $_SESSION['KEY'] = $key;
-                ajax_echo(json_encode(array('code' => 0)));
-            }
-            else
-                ajax_echo(json_encode(array('code' => -1)));
-        }
-        else
-            ajax_echo(json_encode(array('code' => -2)));
     }
 }
 ?>

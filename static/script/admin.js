@@ -60,7 +60,8 @@ function saveARoute() {
       placement : 'bottom',
       trigger : 'manual',
       title : '保存线路',
-      content : responseObj.content
+      content : responseObj.content,
+      container : 'body'
     }).popover('show');
     window.setTimeout("$('#save').popover('hide')", 2000);
 
@@ -85,8 +86,7 @@ function saveARoute() {
 function addARoute() {
   var _routeName = $('#routeName').val();
   //向列表插入新线路（线路Id用`# + 线路名称`表示，后端会区分insert还是update）
-  $('<button type="button" style="text-align: left;padding-left: 8px;" class="btn btn-block"></button>').
-    data('id', '#' + _routeName).
+  $('<button type="button" style="text-align: left;padding-left: 8px;" class="btn btn-block" data-id="#"></button>').
     text(_routeName).
     appendTo('.btn-group-vertical').
     button('toggle');
@@ -140,6 +140,8 @@ function regRoutesListEvents() {
   $('.btn-group-vertical button').off('.list').on('click.list', function() {
     var routeIdToGo = $(this).data('id');
     var previousId = $('.btn-group-vertical button.active').data('id');
+    if(routeIdToGo == previousId)
+      return;
     if($('#save').hasClass('disabled')) {
       loadARoute(routeIdToGo);
       setMode('normal');
@@ -149,8 +151,11 @@ function regRoutesListEvents() {
         loadARoute(routeIdToGo);
         setMode('normal');
         $('#tabModal').modal('hide');
+        //如果之前为新线路，则从列表中删除
+        if(previousId == '#')
+          $('.btn-group-vertical button[data-id="#"]').remove();
       }, function() {
-        $('.btn-group-vertical button[routeId="' + previousId + '"]').button('toggle');
+        $('.btn-group-vertical button[data-id="' + previousId + '"]').button('toggle');
       });
     }
   });
@@ -173,27 +178,28 @@ function regToolbarEvents() {
   });
 
   var propertiesDialogCommon = '\
-  <input id="routeName" class="input-block-level" type="text" placeholder="线路名称">\
-  <div id="routeType" class="btn-group" style="margin:0px 0px 10px" data-toggle="buttons-radio">\
-    <button data-color="red" class="btn btn-small btn-danger active">管道光缆</button>\
-    <button data-color="green" class="btn btn-small btn-success">架空ADSS</button>\
-    <button data-color="yellow" class="btn btn-small btn-warning">架空OPGW</button>\
-  </div>';
+<input id="routeName" class="input-block-level" type="text" placeholder="线路名称">\
+<div id="routeType" class="btn-group" style="margin:0px 0px 10px" data-toggle="buttons-radio">\
+<button data-color="red" class="btn btn-small btn-danger active">管道光缆</button>\
+<button data-color="green" class="btn btn-small btn-success">架空ADSS</button>\
+<button data-color="blue" class="btn btn-small btn-primary">架空OPGW</button>\
+</div>';
 
   //修改属性对话框
   var propertiesPopoverDialog = propertiesDialogCommon + '\
-  <a href="javascript:editProperties();$(\'#properties\').popover(\'hide\');" class="btn btn-primary">确定</a>\
-  <a href="javascript:$(\'#properties\').popover(\'hide\');" class="btn">取消</a>';
+<a href="#" onclick="javascript:editProperties();$(\'#properties\').popover(\'hide\');" class="btn btn-primary">确定</a>\
+<a href="#" onclick="javascript:$(\'#properties\').popover(\'hide\');" class="btn">取消</a>';
   $('#properties').popover({
     html : true,
     placement : 'bottom',
     title : '修改属性',
     content : propertiesPopoverDialog,
-    trigger : 'manual'
+    trigger : 'manual',
+    container : 'body'
   }).click(function() {
     if(!$(this).hasClass('disabled')) {
       $(this).popover('show');
-      $('#mainGroup .popover').css('width', 'auto');
+      //$('#mainGroup .popover').css('width', 'auto');
       var originColor = gLine.strokeColor;
       $('#routeType button[data-color="' + originColor + '"]').button('toggle');
       $('#routeName').val(gLine.name);
@@ -202,31 +208,33 @@ function regToolbarEvents() {
 
   //插入和删除的动作不直接绑定到工具栏按钮的click上，而是绑定到popover的确认按钮上
   var addPopoverDialog = propertiesDialogCommon + '\
-  <a href="javascript:addARoute();$(\'#add\').popover(\'hide\');" class="btn btn-primary">确定</a>\
-  <a href="javascript:$(\'#add\').popover(\'hide\');" class="btn">取消</a>';
+<a href="#" onclick="javascript:addARoute();$(\'#add\').popover(\'hide\');" class="btn btn-primary">确定</a>\
+<a href="#" onclick="javascript:$(\'#add\').popover(\'hide\');" class="btn">取消</a>';
   $('#add').popover({
     html : true,
     placement : 'bottom',
     title : '添加线路',
     content : addPopoverDialog,
-    trigger : 'manual'
+    trigger : 'manual',
+    container : 'body'
   }).click(function() {
     if(!$(this).hasClass('disabled')) {
       $(this).popover('show');
-      $('#editGroup .popover').css('width', 'auto');
+      //$('#editGroup .popover').css('width', 'auto');
     }
   });//修正弹出框的宽度
 
   var deletePopoverDialog = '\
-  <p class="text-error">确定要删除这条线路吗？</p>\
-  <a href="javascript:deleteARoute();$(\'#delete\').popover(\'hide\');" class="btn">确定</a>\
-  <a href="javascript:$(\'#delete\').popover(\'hide\');" class="btn btn-primary">取消</a>';
+<p class="text-error">确定要删除这条线路吗？</p>\
+<a href="#" onclick="javascript:deleteARoute();$(\'#delete\').popover(\'hide\');" class="btn btn-danger">确定</a>\
+<a href="#" onclick="javascript:$(\'#delete\').popover(\'hide\');" class="btn btn-primary">取消</a>';
   $('#delete').popover({
     html : true,
     placement : 'bottom',
     title : '删除线路',
     content : deletePopoverDialog,
-    trigger : 'manual'
+    trigger : 'manual',
+    container : 'body'
   }).click(function() {
     if(!$(this).hasClass('disabled') && typeof(gLine) != 'undefined' && gLine != null)
       $(this).popover('show');
@@ -339,30 +347,31 @@ function regUserAdminEvent() {
   $('table .btn-group button.btn-danger').click(function() {
     var userid = $(this).data('userid');
     var popover = '\
-    <p class="text-error">您确认要删除这个用户吗？</p>\
-    <a href="javascript:delete_a_user_event_handler(\'' + userid + '\', true)" class="btn">确定</a>\
-    <a href="javascript:delete_a_user_event_handler(\'' + userid + '\', false)" class="btn btn-primary">取消</a>\
+<p class="text-error">您确认要删除这个用户吗？</p>\
+<a href="#" onclick="javascript:delete_a_user_event_handler(\'' + userid + '\', true)" class="btn">确定</a>\
+<a href="#" onclick="javascript:delete_a_user_event_handler(\'' + userid + '\', false)" class="btn btn-primary">取消</a>\
     ';
     $(this).
-      popover({html:true, placement:'bottom', trigger:'manual', title:'确认', content:popover}).
+      popover({html:true, placement:'bottom', trigger:'manual', title:'确认', content:popover, container : 'body'}).
       popover('show');
   });
 
   var popover = '\
-  <input id="newUsername" class="input-block-level" type="text" placeholder="用户名(32字内，不含&quot;&<>)">\
-  <input id="newUserPassword" class="input-block-level" type="password" placeholder="密码">\
-  <input id="repeatPassword" class="input-block-level" type="password" placeholder="确认密码">\
-  <div id="newUserPermissions" class="btn-group" style="margin:0px 0px 10px; display: block;" data-toggle="buttons-radio">\
-  <button data-permissions="10" class="btn btn-mini active">查看线路</button>\
-  <button data-permissions="5" class="btn btn-mini btn-warning">修改线路</button>\
-  </div>\
-  <a href="javascript:addAUser();" class="btn btn-primary">确定</a>\
-  <a href="javascript:$(\'#addUser\').popover(\'hide\');" class="btn">取消</a>';
+<input id="newUsername" class="input-block-level" type="text" placeholder="用户名(32字内，不含&quot;&<>)">\
+<input id="newUserPassword" class="input-block-level" type="password" placeholder="密码(8位或以上)">\
+<input id="repeatPassword" class="input-block-level" type="password" placeholder="确认密码">\
+<div id="newUserPermissions" class="btn-group" style="margin:0px 0px 10px; display: block;" data-toggle="buttons-radio">\
+<button data-permissions="10" class="btn btn-mini active">查看线路</button>\
+<button data-permissions="5" class="btn btn-mini btn-warning">修改线路</button>\
+</div>\
+<a href="#" onclick="javascript:addAUser();" class="btn btn-primary">确定</a>\
+<a href="#" onclick="javascript:$(\'#addUser\').popover(\'hide\');" class="btn">取消</a>';
   $('#addUser').popover({
     html: true,
     placement: 'bottom',
     title: '添加用户',
-    content: popover
+    content: popover,
+    container : 'body'
   });
 }
 
@@ -391,11 +400,15 @@ function delete_a_user_event_handler(userid, ensure) {
 function addAUser() {
   var username = $('#newUsername').val();
   var password = $('#newUserPassword').val();
+  if(password.length < 8) {
+    $('#newUserPassword').val('').focus();
+    return;
+  }
   if(password != $('#repeatPassword').val()) {
     $('#repeatPassword').val('').focus();
     return;
   }
-  if(username.length > 32 || username.search(/[&<>\"]/) >= 0) {
+  if(username.length == 0 || username.length > 32 || username.search(/[&<>\"]/) >= 0) {
     $('#newUsername').val('').focus();
     return;
   }
@@ -420,15 +433,15 @@ function addAUser() {
       var permissions_color = permissions < 10 ? ' class="warning"' : '';
       var permissions_str = permissions < 10 ? '修改线路' : '查看线路';
       var newUserRow = '\
-      <tr' + permissions_color + ' data-userid="' + newid + '">\
-      <td>' + newid + '</td>\
-      <td>' + xssf(username) + '</td>\
-      <td>' + permissions_str + '</td>\
-      <td>\
-      <div class="btn-group">\
-      <button class="btn btn-danger btn-mini" data-userid="' + newid + '"><i class="icon-minus"></i>&nbsp;删除用户</button>\
-      </div>\
-      </td>\
+<tr' + permissions_color + ' data-userid="' + newid + '">\
+<td>' + newid + '</td>\
+<td>' + xssf(username) + '</td>\
+<td>' + permissions_str + '</td>\
+<td>\
+<div class="btn-group">\
+<button class="btn btn-danger btn-mini" data-userid="' + newid + '"><i class="icon-minus"></i>&nbsp;删除用户</button>\
+</div>\
+</td>\
       </tr>';
       $(newUserRow).appendTo('#usersAdmin tbody');
       regUserAdminEvent();
@@ -442,8 +455,8 @@ function addAUser() {
 
 function adminSearchEventHandler() {
   var keyword = $('#searchInput').val();
-  var selectorHide = 'div.btn-group-vertical button:not(:contains("' + keyword + '"))';
-  var selectorShow = 'div.btn-group-vertical button:contains("' + keyword + '")';
+  var selectorHide = 'div.btn-group-vertical button:not(:contains(' + keyword + '))';
+  var selectorShow = 'div.btn-group-vertical button:contains(' + keyword + ')';
   $(selectorHide).fadeOut('fast');
   $(selectorShow).fadeIn('fast');
 }

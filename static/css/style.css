@@ -122,8 +122,8 @@ a:hover
 
 .navbar-hide
 {
-  visibility:hidden;
-  display:none;
+  visibility:hidden !important;
+  display:none !important;
 }
 
 .sidebar-nav .nav-list
@@ -132,7 +132,17 @@ a:hover
   max-height: 530px;
 }
 
-#summary
+@media (min-width: 767px) {
+  #summary
+  {
+    height: 400px;
+  }
+}
+
+.device-detective
 {
-  height: 400px;
+  height: 0px !important;
+  width: 0px !important;
+  margin: 0px !important;
+  padding: 0px !important;
 }

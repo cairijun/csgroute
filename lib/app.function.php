@@ -1,10 +1,17 @@
 <?php
 function xssf($data, $is_json = false)
 {
+    $ret = '';
     if($is_json)
-        return htmlspecialchars($data, ENT_NOQUOTES | ENT_HTML401, 'UTF-8', false);
+        $ret = htmlspecialchars($data, ENT_NOQUOTES | ENT_HTML401, 'UTF-8', false);
     else
-        return htmlspecialchars($data, ENT_COMPAT | ENT_HTML401, 'UTF-8', false);
+        $ret = htmlspecialchars($data, ENT_COMPAT | ENT_HTML401, 'UTF-8', false);
+    if($data != $ret)
+        add_a_log(
+            'app.function.php:xssf()',
+            'possible_xss',
+            $_COOKIE['USERNAME'] . ',' . $data);
+    return $ret;
 }
 
 function pass_hash($passhash, $salt)
@@ -28,6 +35,7 @@ function check_auth()
 
     $sql = prepare("SELECT * FROM `auth_tokens` WHERE `USERID` = ?i", array($userid));
     $tokens_array = get_line($sql);
+    $GLOBALS['KEY'] = $tokens_array['KEY'];
 
     if($tl == $tokens_array['TL'])
     {
@@ -44,10 +52,7 @@ function check_auth()
                 }
                 else
                 {
-                    add_a_log(
-                        'app.function.php:check_auth():39',
-                        'check_auth_error',
-                        $_COOKIE['USERNAME'] . ': UA-CHECK ERROR');
+                    $GLOBALS['AUTH_ERROR'] = 'ua_check_error';
                     reset_all($userid);
                     return false;
                 }
@@ -55,10 +60,7 @@ function check_auth()
         }
         else
         {
-            add_a_log(
-                'app.function.php:check_auth():50',
-                'check_auth_error',
-                $_COOKIE['USERNAME'] . ': TS-CHECK ERROR');
+            $GLOBALS['AUTH_ERROR'] = 'ts_check_error';
             reset_all($userid);
             return false;
         }
@@ -81,17 +83,23 @@ function reset_ts($userid, $update_cookie = false)
         setcookie('TS', $ts, time() + 604800, '', '', false, true);
 }
 
-function reset_all($userid, $update_cookie = false)
+function reset_all($userid, $update_cookie = false, $key = null)
 {
     $ts = sha1(uniqid(mt_rand() . 'TS', true));
     $tl = sha1(uniqid(mt_rand() . 'TL', true));
     $ua = sha1($_SERVER['HTTP_USER_AGENT']);
     $ip = sha1($_SERVER['REMOTE_ADDR']);
 
-    $sql = prepare(
-        "UPDATE `auth_tokens` SET `TS` = ?s, `TL` = ?s, `UA` = ?s, `IP` = ?s WHERE `USERID` = ?i",
-        array($ts, $tl, $ua, $ip, $userid));
+    if($key == null)
+        $sql = prepare(
+            "UPDATE `auth_tokens` SET `TS` = ?s, `TL` = ?s, `UA` = ?s, `IP` = ?s WHERE `USERID` = ?i",
+            array($ts, $tl, $ua, $ip, $userid));
+    else
+        $sql = prepare(
+            "UPDATE `auth_tokens` SET `TS` = ?s, `TL` = ?s, `UA` = ?s, `IP` = ?s, `KEY` = ?s WHERE `USERID` = ?i",
+            array($ts, $tl, $ua, $ip, $key, $userid));
     run_sql($sql);
+
     if($update_cookie)
     {
         setcookie('TS', $ts, time() + 604800, '', '', false, true);
@@ -99,7 +107,7 @@ function reset_all($userid, $update_cookie = false)
     }
 }
 
-function user_login($username, $passhash)
+function user_login($username, $passhash, $key)
 {
     $sql = prepare(
         "SELECT * FROM `users` WHERE `username` = ?s",
@@ -113,7 +121,7 @@ function user_login($username, $passhash)
     {
         setcookie('USERID', $data['id'], time() + 604800);
         setcookie('USERNAME', $data['username'], time() + 604800);
-        reset_all($data['id'], true);
+        reset_all($data['id'], true, $key);
         return true;
     }
     else
@@ -145,6 +153,10 @@ function change_password($userid, $oldpasshash, $newpasshash)
 
 function add_a_log($position, $type, $content)
 {
+    $auth_error = g('AUTH_ERROR');
+    if($auth_error != null && strlen($auth_error) > 0)
+        $content = $content . '(' . $auth_error . ')';
+
     $sql = prepare(
         "INSERT INTO `log` (`position`, `type`, `ip`, `ua`, `content`) VALUES (?s, ?s, ?s, ?s, ?s)",
         array($position, $type, $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'], $content));
@@ -155,7 +167,16 @@ function anti_csrf($check_token = false)
 {
     //检查REFERER头
     if(!isset($_SERVER['HTTP_REFERER']) || (stripos($_SERVER['HTTP_REFERER'], c('site_domain')) === false))
+    {
+        $log_content = sprintf('%s,%s,c=%s&a=%s',
+            $_COOKIE['USERNAME'], $_SERVER['HTTP_REFERER'], g('c'), g('a'));
+
+        add_a_log(
+            'app.function.php:anti_csrf()',
+            'csrf_invalid_referer',
+            $log_content);
         output_403();
+    }
      
     if($check_token)
     {
@@ -163,6 +184,13 @@ function anti_csrf($check_token = false)
         //检查令牌
         if($tmp)
             return generate_post_token();
+
+        $log_content = sprintf('%s,c=%s&a=%s',
+            $_COOKIE['USERNAME'], g('c'), g('a'));
+        add_a_log(
+            'app.function.php:anti_csrf()',
+            'csrf_invalid_token',
+            $log_content);
         output_403();
     }
 }
@@ -184,9 +212,9 @@ function generate_post_token()
 
 function encrypt_transfer_data($data, $key = null)
 {
-    if($key == null && isset($_SESSION['KEY']))
-        $key = $_SESSION['KEY'];
-    else
+    if($key == null)
+        $key = g('KEY');
+    if($key == null)
         output_403();
 
     $iv = substr(md5(uniqid(mt_rand() . '', true)), 0, 16);
@@ -198,9 +226,9 @@ function encrypt_transfer_data($data, $key = null)
 
 function decrypt_transfer_data($data, $key = null)
 {
-    if($key == null && isset($_SESSION['KEY']))
-        $key = $_SESSION['KEY'];
-    else
+    if($key == null)
+        $key = g('KEY');
+    if($key == null)
         output_403();
 
     $iv = substr($data, 0, 16);
@@ -217,4 +245,32 @@ function parse_encrypted_post($key = null)
     {
         return json_decode(decrypt_transfer_data($_POST['data'], $key), true);
     }
+}
+
+//RSA解密经过BASE64编码的数据
+function rsa_decrypt_data($data)
+{
+    //下面是私钥，注意保密
+    $private_key_pem_file = '-----BEGIN RSA PRIVATE KEY-----
+MIICXAIBAAKBgQDVlB0xmT4/eSNixAX82h6FaqEGK2Z/iNtw0q35vGMk2r2zcgiX
+pILyoUgglbBcnl1ZKqIFcU48+FxWj6r4rEP+GlahzhiXYEFAj6nIRDXz/xY0Uefr
+la8hYG1Y5pNzVvCro9COxoZVcy64UCF6AquyI1fQr+uSLDWPIoU86qynmQIDAQAB
+AoGAJ8CHpoGlSl8brPhbPPLEF4T/L4zIaRhp75fm9cKQmX11LX8eBkuCa/KE4Du8
+NaDsMvpyaZzrOQHo/duDsQEvLjdAScFAd9BUy0z4uDbcudGonrs4w1WyKLrkFObj
+5TC3QfDBfUoY3PBhsePCseBWbj6r1Ykc2ivM7keSmEBlkuECQQD29rDCqJarW1PS
+wcNERIGkwJwuMUMG8IqVQUi7WPTsbEr5uzIGMhPqmxDSOPymxYj1XUnTojffHqhn
+C2CYOYudAkEA3WS0nJRJuYtk9OY7UrJC6gCha0o6SDJYOu6eEBiz9lLK28rw+HH+
+bsqXuJNftB9GfxInZDuELXW4FqrZHHmBLQJBAKSWohUJQGjxU7sJMXbk5TYEu9G5
+OP99/g4c1TkuvwR1473tuRgR9d4L/Djui8slqPJFevdVjEDh8L/EAFtTNq0CQFpn
+Cd06LBSo1/Oso6K0CeDVmxRdfgkHDcIat85o1+uIiS9Q4i8BFV0WOvfyrcy2TKoM
+tqsWJnYNsLsIzpjzAI0CQCc/mmkkxT4DSH2bt4ffGEkyLdU6pvtpFZyPoQ3gfbLP
+AZsVXk+Dp2qpkKdTM+H5bNnft5n5SJynNJ/KXvnevDo=
+-----END RSA PRIVATE KEY-----
+';
+    $private_key = openssl_pkey_get_private($private_key_pem_file);
+    $original_data = '';
+    if(openssl_private_decrypt(base64_decode($data), $original_data, $private_key))
+        return $original_data;
+    else
+        return false;
 }

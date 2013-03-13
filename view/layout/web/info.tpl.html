@@ -5,30 +5,12 @@
     <title><?=$top_title . ' | ' . c('site_name') ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="static/css/bootstrap.min.css" rel="stylesheet">
-    <style type="text/css">
-     body 
-{
-	padding-top: 60px;
-	padding-bottom: 40px;
-}
-
-.sidebar-nav 
-{
-	padding: 9px 0;
-}
-    </style>
-	<link href="static/css/bootstrap-responsive.min.css" rel="stylesheet">
-	<link rel="stylesheet" href="static/css/style.css" type="text/css" >
+    <link rel="stylesheet" href="static/css/style.css" type="text/css" >
+    <link href="static/css/bootstrap-responsive.min.css" rel="stylesheet">
 <?php if( isset($css) && is_array( $css ) ): ?>
         <?php foreach( $css as $cfile ): ?><link rel="stylesheet" type="text/css" href="static/css/<?=$cfile?>">
         <?php endforeach; ?>
 <?php endif; ?>
-<!--[if lt IE 9]>
-      <script src="static/script/html5.js"></script>
-<![endif]-->
-<!--[if IE 6]>    
-    		<link href="static/css/ie6.min.css" rel="stylesheet">
-<![endif]-->
 </head>    
 <body>
  	<?php @include_once( dirname(__FILE__) ) . DS . 'header.tpl.html'; ?>  
@@ -42,13 +24,63 @@
      <?php @include_once( dirname(__FILE__) ) . DS . 'footer.tpl.html'; ?>
      
     </div><!--/.fluid-container-->
+
+    <div id="errorModal" class="modal hide fade">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>错误</h3>
+      </div>
+      <div class="modal-body">
+        <p id="modalErrorMsg"></p>
+      </div>      
+      <div class="modal-footer">
+        <a href="#" class="btn btn-primary" data-dismiss="modal" aria-hidden="true">确定</a>
+      </div>
+    </div>
+
+    <div id="changePasswordModal" class="modal hide fade">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>修改密码</h3>
+      </div>
+      <div class="modal-body">
+        <div id="alertContainer"></div>
+        <form class="form-horizontal" id="changePasswordForm">
+          <div class="control-group">
+            <label class="control-label">旧密码</label>
+            <div class="controls">
+              <input class="input-xlarge" type="password" id="oldpassword">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">新密码</label>
+            <div class="controls">
+              <input class="input-xlarge" type="password" id="newpassword" placeholder="8位或以上">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">重新输入新密码</label>
+            <div class="controls">
+              <input class="input-xlarge" type="password" id="repeatpassword">
+            </div>
+          </div>
+        </form>
+      </div>      
+      <div class="modal-footer">
+        <a href="javascript:post_new_password();" class="btn btn-primary">确定</a>
+        <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">取消</a>
+      </div>
+    </div>
+
+    <script>
+      page = 'info';
+    </script>
     
-    <script src="http://lib.sinaapp.com/js/jquery/1.7/jquery.min.js"></script>
+    <script src="static/script/jquery-1.9.1.min.js"></script>
     <script src="static/script/bootstrap.min.js"></script>
-    <!--[if IE 6]>    
-    		 <script src="static/script/ie6.min.js"></script>
-	<![endif]-->
-    
+    <script src="static/script/sha1.js"></script>
+    <script src="static/script/aes.js"></script>
+    <script src="static/script/rsa.js"></script>
     <script src="static/script/app.js"></script>
     
     
