@@ -44,7 +44,7 @@ class appController extends coreController
         anti_csrf();
         $username = $_POST['username'];
 
-        $decrypted_key = json_decode(rsa_encrypt_data($_POST['key']), true);
+        $decrypted_key = json_decode(rsa_decrypt_data($_POST['key']), true);
         $passhash = $decrypted_key['passhash'];
         $key = $decrypted_key['key'];
 

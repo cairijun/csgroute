@@ -248,7 +248,7 @@ function parse_encrypted_post($key = null)
 }
 
 //RSA解密经过BASE64编码的数据
-function rsa_encrypt_data($data)
+function rsa_decrypt_data($data)
 {
     //下面是私钥，注意保密
     $private_key_pem_file = '-----BEGIN RSA PRIVATE KEY-----

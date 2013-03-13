@@ -226,7 +226,7 @@ function regToolbarEvents() {
 
   var deletePopoverDialog = '\
 <p class="text-error">确定要删除这条线路吗？</p>\
-<a href="#" onclick="javascript:deleteARoute();$(\'#delete\').popover(\'hide\');" class="btn">确定</a>\
+<a href="#" onclick="javascript:deleteARoute();$(\'#delete\').popover(\'hide\');" class="btn btn-danger">确定</a>\
 <a href="#" onclick="javascript:$(\'#delete\').popover(\'hide\');" class="btn btn-primary">取消</a>';
   $('#delete').popover({
     html : true,
