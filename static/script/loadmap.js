@@ -456,7 +456,47 @@ function LocatorControl(map) {
     this._isUsable = false;
   }
 
+  google.maps.event.addDomListener(this._div, 'contextmenu', function(e) {
+    if(_this.isLocateByInput)
+      return;
+    e.preventDefault();
+    _this.isLocateByInput = true;
+    var inputForm = '\
+<form id="latLngForm">\
+<input type="text" placeholder="纬度" id="lat">\
+<input type="text" placeholder="经度" id="lng">\
+<button type="submit">定位</button>\
+<button type="button" id="latLngCancel">取消</button>\
+</form>';
+    var inputFormObj = $.parseHTML(inputForm);
+    $(inputFormObj).click(function(e) {e.stopPropagation();});
+    $(this).append(inputFormObj);
+    $('#latLngForm input').css('width', '55pt').css('display', 'block');
+    $('#latLngForm').css('margin', '0px').submit(function(e) {
+      e.preventDefault();
+      if($('#lat').val().match(/[^\d.]/) != null) {
+        $('#lat').val('').focus();
+        return;
+      }
+      if($('#lng').val().match(/[^\d.]/) != null) {
+        $('#lng').val('').focus();
+        return;
+      }
+      pObj = {coords: {latitude: +$('#lat').val(), longitude: +$('#lng').val(), accuracy: 0}};
+      _this.updatePosition(pObj);
+      $(inputFormObj).remove();
+      _this.isLocateByInput = false;
+    });
+    $('#latLngCancel').click(function(e) {
+      e.stopPropagation();
+      $(inputFormObj).remove();
+      _this.isLocateByInput = false;
+    });
+  });
+
   google.maps.event.addDomListener(this._div, 'click', function() {
+    if(_this.isLocateByInput)
+      return;
     if(!_this._isUsable)
       return;
     if(_this._isEnabled) {
@@ -517,7 +557,7 @@ LocatorControl.prototype._initOverlay = function() {
   var _markerIcon = new google.maps.MarkerImage('./static/image/bullet_blue.png');
   _markerIcon.anchor = new google.maps.Point(16, 16);
 
-  this._marker = new google.maps.Marker({flat: true, icon: _markerIcon, map: this._map});
+  this._marker = new google.maps.Marker({flat: true, icon: _markerIcon, map: this._map, clickable: false});
   this._circle = new google.maps.Circle({
     fillColor: '#0AF', fillOpacity: 0.25, strokeColor: '#0AF', strokeWeight: 1.5, clickable: false, map: this._map
   });
