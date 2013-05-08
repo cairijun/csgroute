@@ -105,3 +105,81 @@ function delete_a_user($userid)
     run_sql($sql);
     return true;
 }
+
+function get_route_color($type)
+{
+    switch($type)
+    {
+    case '架空':
+        return 'red';
+    case '槽盒':
+        return 'green';
+    case '槽盒外':
+        return 'blue';
+    case '无槽盒':
+        return 'darkorange';
+    }
+}
+
+function import_routes($routes, $points_position)
+{
+    $delete_list = array();
+    $add_list = array();
+    foreach($routes as $a_route)
+    {
+        //构建删除数组
+        array_push($delete_list,
+            "`name` = '" . mysql_real_escape_string($a_route['name']) . "'");
+
+        //普通井/塔
+        $normal_points = array_diff($a_route['points'], $a_route['joints']);
+
+        //构建线路数据
+        $route_array = array();
+        $route_path = array();
+        foreach($a_route['points'] as $a_point)
+            array_push($route_path, $points_position[$a_point]);
+        $route_array['path'] = $route_path;
+        $route_array['strokeWeight'] = 3;
+        $route_array['strokeColor'] = get_route_color($a_route['type']);
+        $route_array['strokeOpacity'] = 1;
+
+        //构建井/塔数据
+        $points_array = array();
+        foreach($normal_points as $a_point)
+            array_push($points_array, array(
+                'title' => $a_point,
+                'content' => $a_point,
+                'position' => $points_position[$a_point]));
+
+        foreach($a_route['joints'] as $a_point)
+            array_push($points_array, array(
+                'title' => $a_point,
+                'content' => $a_point,
+                'color' => 'cyan',
+                'position' => $points_position[$a_point]));
+
+        //地图状态
+        $status_array = array(
+            'center' => $points_array[0]['position'],
+            'zoom' => 14);
+
+        //构建插入数组
+        array_push($add_list,
+            sprintf("('%s', '%s', '%s', '%s', NOW())",
+            mysql_real_escape_string(json_encode($points_array)),
+            mysql_real_escape_string(json_encode($route_array)),
+            mysql_real_escape_string(json_encode($status_array)),
+            mysql_real_escape_string($a_route['name'])));
+    }
+
+    //删除原有同名线路
+    $sql = "DELETE FROM `routes` WHERE ".
+        join(' OR ', $delete_list);
+    run_sql($sql);
+    //插入线路
+    $sql = "INSERT INTO `routes` (`markers`, `points`, `status`, `name`, `mtime`) VALUES ".
+        join(',' $add_list);
+    run_sql($sql);
+}
+
