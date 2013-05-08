@@ -180,9 +180,10 @@ function regToolbarEvents() {
   var propertiesDialogCommon = '\
 <input id="routeName" class="input-block-level" type="text" placeholder="线路名称">\
 <div id="routeType" class="btn-group" style="margin:0px 0px 10px" data-toggle="buttons-radio">\
-<button data-color="red" class="btn btn-small btn-danger active">管道光缆</button>\
-<button data-color="green" class="btn btn-small btn-success">架空ADSS</button>\
-<button data-color="blue" class="btn btn-small btn-primary">架空OPGW</button>\
+<button data-color="red" class="btn btn-small btn-danger active">架空</button>\
+<button data-color="green" class="btn btn-small btn-success">槽盒</button>\
+<button data-color="blue" class="btn btn-small btn-primary">槽盒外</button>\
+<button data-color="darkorange" class="btn btn-small btn-warning">无槽盒</button>\
 </div>';
 
   //修改属性对话框
