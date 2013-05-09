@@ -179,7 +179,7 @@ function import_routes($routes, $points_position)
     run_sql($sql);
     //插入线路
     $sql = "INSERT INTO `routes` (`markers`, `points`, `status`, `name`, `mtime`) VALUES ".
-        join(',' $add_list);
+        join(',', $add_list);
     run_sql($sql);
 }
 

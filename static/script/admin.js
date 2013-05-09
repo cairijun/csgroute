@@ -239,6 +239,10 @@ function regToolbarEvents() {
     if(!$(this).hasClass('disabled') && typeof(gLine) != 'undefined' && gLine != null)
       $(this).popover('show');
   });
+
+  $('#import').click(function() {
+    $('#importModal').modal('toggle');
+  });
 }
 
 function callbackableModal(elementSelector, callback, callback2) {

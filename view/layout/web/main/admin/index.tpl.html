@@ -36,8 +36,9 @@
       </div>
 
       <div class="span4">
+        <button type="button" id="import" class="btn btn-info pull-left" style="margin-top: 10px">导入数据</button>
         <!--搜索框-->
-        <div class="input-append span10" style="margin-top: 10px;">
+        <div class="input-append span6" style="margin-top: 10px;">
           <input class="span12" id="searchInput" type="text">
           <span class="add-on"><i class="icon-search"></i></span>
         </div>
@@ -139,6 +140,64 @@ function get_permissions_str($permissions)
         <button type="button" class="btn btn-info" data-color="cyan">带接头的井/塔</button>
       </div>
     </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+    <button type="button" class="btn btn-primary">确定</button>
+  </div>
+</div>
+
+<div id="importModal" class="modal hide fade">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3>导入数据</h3>
+  </div>
+  <div class="modal-body">
+    <div id="importAlert"></div>
+    <span class="label label-warning" style="margin: 10px 20px">
+      注意！目前系统无法对上传文件进行加密，请在安全的网络环境中使用此功能。
+    </span>
+    <form class="form-horizontal">
+      <div class="control-group">
+        <label class="control-label">线路数据</label>
+        <div class="controls">
+          <input type="file" name="routedata">
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">起始行号</label>
+        <div class="controls">
+          <input type="text" name="startrn" value="4">
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">数据列</label>
+        <div class="controls controls-row">
+          站内站外：<input type="text" name="col1" value="E" class="input-mini">
+          光缆名称：<input type="text" name="col2" value="G" class="input-mini">
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="controls controls-row">
+          光缆路径：<input type="text" name="col3" value="U" class="input-mini">
+          敷设方式：<input type="text" name="col4" value="AA" class="input-mini">
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="controls controls-row">
+          接续盒位置：<input type="text" name="col5" value="AG" class="input-mini">
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">井/塔坐标</label>
+        <div class="controls">
+          <input type="file" name="markersdata">
+        </div>
+      </div>
+    </form>
+    <div class="progress progress-striped active">
+      <div class="bar" style="width: 0%"></div>
+    </div>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
