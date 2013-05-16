@@ -121,6 +121,74 @@ function get_route_color($type)
     }
 }
 
+function parse_routes_file($filename, $startrn, $col1, $col2, $col3, $col4, $col5)
+{
+    include_once('lib/PHPExcel/IOFactory.php');
+
+    $result = array();
+    $error = '';
+
+    try{
+        $xls = PHPExcel_IOFactory::load($filename);
+        $sheet = $xls->getActiveSheet();
+        $rows_count = $sheet->getHighestRow();
+
+        for($i = $startrn; $i <= $rows_count; ++$i)
+        {
+            if($sheet->getCell($col1 . $i)->getValue() == '站内')
+                continue;
+
+            $name = $sheet->getCell($col2 . $i)->getValue();
+            $points = explode(',', $sheet->getCell($col3 . $i)->getValue());
+            $type = $sheet->getCell($col4 . $i)->getValue();
+            $joints = explode(',', $sheet->getCell($col5 . $i)->getValue());
+
+            $a_route = array(
+                'name' => $name,
+                'points' => $points,
+                'type' => $type,
+                'joints' => $joints);
+            array_push($result, $a_route);
+        }
+    }
+    catch(PHPExcel_Exception $e)
+    {
+        $error = $e->getMessage();
+    }
+
+    return $error ? $error : $result;
+}
+
+function parse_markers_file($filename)
+{
+    include_once('lib/PHPExcel/IOFactory.php');
+
+    $result = array();
+    $error = '';
+
+    try
+    {
+        $xls = PHPExcel_IOFactory::load($filename);
+        $sheet = $xls->getActiveSheet();
+        $rows_count = $sheet->getHighestRow();
+
+        for($i = 1; $i <= $rows_count; ++$i)
+        {
+            $name = $sheet->getCell('A' . $i)->getValue();
+            $lat = $sheet->getCell('B' . $i)->getValue();
+            $lng = $sheet->getCell('C' . $i)->getValue();
+
+            $result[$name] = array($lat, $lng);
+        }
+    }
+    catch(PHPExcel_Exception $e)
+    {
+        $error = $e->getMessage();
+    }
+
+    return $error ? $error : $result;
+}
+
 function import_routes($routes, $points_position)
 {
     $delete_list = array();
@@ -181,5 +249,7 @@ function import_routes($routes, $points_position)
     $sql = "INSERT INTO `routes` (`markers`, `points`, `status`, `name`, `mtime`) VALUES ".
         join(',', $add_list);
     run_sql($sql);
+
+    return true;
 }
 
