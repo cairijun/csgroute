@@ -125,6 +125,9 @@ function parse_routes_file($filename, $startrn, $col1, $col2, $col3, $col4, $col
 {
     include_once('lib/PHPExcel/IOFactory.php');
 
+    $cache_method = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;
+    PHPExcel_Settings::setCacheStorageMethod($cache_method);
+
     $result = array();
     $error = '';
 
@@ -162,6 +165,9 @@ function parse_routes_file($filename, $startrn, $col1, $col2, $col3, $col4, $col
 function parse_markers_file($filename)
 {
     include_once('lib/PHPExcel/IOFactory.php');
+
+    $cache_method = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;
+    PHPExcel_Settings::setCacheStorageMethod($cache_method);
 
     $result = array();
     $error = '';
