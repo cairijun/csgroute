@@ -157,7 +157,7 @@ function get_permissions_str($permissions)
     <span class="label label-warning" style="margin: 10px 20px">
       注意！目前系统无法对上传文件进行加密，请在安全的网络环境中使用此功能。
     </span>
-    <form class="form-horizontal">
+    <form class="form-horizontal" action="?c=admin&a=ajax_upload_data_file" method="post" enctype="multipart/form-data">
       <div class="control-group">
         <label class="control-label">线路数据</label>
         <div class="controls">

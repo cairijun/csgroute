@@ -240,8 +240,43 @@ function regToolbarEvents() {
       $(this).popover('show');
   });
 
+  //上传数据导入功能
   $('#import').click(function() {
     $('#importModal').modal('toggle');
+  });
+  $('#importModal .modal-footer .btn-primary').click(uploadFileEventHandler);
+}
+
+function uploadFileEventHandler() {
+  var progressBar = $('#importModal .progress .bar');
+  $('#importAlert .alert').alert('close');
+
+  $('#importModal form').ajaxSubmit({
+    data: {
+      postToken : $('#post-token').data('token')
+    },
+    dataType: 'json',
+    beforeSend: function() {
+      progressBar.width('0%');
+    },
+    uploadProgress: function(e, position, total, percentComplete) {
+      progressBar.width(percentComplete + '%');
+    },
+    success: function(response) {
+      $('#post-token').data('token', response.token);
+      if(response.errno === 0) {
+        var alert = $('<div class="alert alert-success" style="display: none;"><strong>导入成功！</strong></div>');
+        alert.append(response.msg).appendTo('#importAlert').show();
+        setTimeout('location.reload()', 2000);//2秒后刷新页面
+      }
+      else {
+        var alert = $('<div class="alert alert-error" style="display: none;"><strong>导入失败！</strong></div>');
+        alert.append(response.msg).appendTo('#importAlert').show();
+      }
+    },
+    error: function() {
+      showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
+    }
   });
 }
 

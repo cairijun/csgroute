@@ -29,7 +29,7 @@ class adminController extends appController
 		$data['title'] = $data['top_title'] = '管理首页';
         $data['routesList'] = get_routes_list();
         $data['usersList'] = get_users_list();
-        $data['js'] = array('admin.js');
+        $data['js'] = array('admin.js', 'jquery.form.js');
         $data['auth'] = g('gAuth');
         $data['postToken'] = generate_post_token();
         if(isset($_COOKIE['USERNAME']))
