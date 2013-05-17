@@ -142,6 +142,8 @@ function parse_routes_file($filename, $startrn, $col1, $col2, $col3, $col4, $col
                 continue;
 
             $name = $sheet->getCell($col2 . $i)->getValue();
+            if(!$name)//防止行数计算错误提交空数据
+                continue;
             $points = explode(',', $sheet->getCell($col3 . $i)->getValue());
             $type = $sheet->getCell($col4 . $i)->getValue();
             $joints = explode(',', $sheet->getCell($col5 . $i)->getValue());
