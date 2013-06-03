@@ -224,10 +224,13 @@ class adminController extends appController
             exit();
         }
 
-        import_routes($routes, $markers_position);
-
-        ajax_echo(
-            json_encode(
-                array('errno' => 0, 'msg' => '导入成功！', 'token' => $newToken)));
+        if(import_routes($routes, $markers_position))
+            ajax_echo(
+                json_encode(
+                    array('errno' => 0, 'msg' => '导入成功！', 'token' => $newToken)));
+        else
+            ajax_echo(
+                json_encode(
+                    array('errno' => -3, 'msg' => '数据错误！', 'token' => $newToken)));
     }
 }

@@ -223,17 +223,25 @@ function import_routes($routes, $points_position)
         //构建井/塔数据
         $points_array = array();
         foreach($normal_points as $a_point)
+        {
+            if(!isset($points_position[$a_point]))
+                return false;
             array_push($points_array, array(
                 'title' => $a_point,
                 'content' => $a_point,
                 'position' => $points_position[$a_point]));
+        }
 
         foreach($a_route['joints'] as $a_point)
+        {
+            if(!isset($points_position[$a_point]))
+                return false;
             array_push($points_array, array(
                 'title' => $a_point,
                 'content' => $a_point,
                 'color' => 'cyan',
                 'position' => $points_position[$a_point]));
+        }
 
         //地图状态
         $status_array = array(
