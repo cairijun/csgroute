@@ -180,9 +180,10 @@ function regToolbarEvents() {
   var propertiesDialogCommon = '\
 <input id="routeName" class="input-block-level" type="text" placeholder="线路名称">\
 <div id="routeType" class="btn-group" style="margin:0px 0px 10px" data-toggle="buttons-radio">\
-<button data-color="red" class="btn btn-small btn-danger active">管道光缆</button>\
-<button data-color="green" class="btn btn-small btn-success">架空ADSS</button>\
-<button data-color="blue" class="btn btn-small btn-primary">架空OPGW</button>\
+<button data-color="red" class="btn btn-small btn-danger active">架空</button>\
+<button data-color="green" class="btn btn-small btn-success">槽盒</button>\
+<button data-color="blue" class="btn btn-small btn-primary">槽盒外</button>\
+<button data-color="darkorange" class="btn btn-small btn-warning">无槽盒</button>\
 </div>';
 
   //修改属性对话框
@@ -238,6 +239,45 @@ function regToolbarEvents() {
   }).click(function() {
     if(!$(this).hasClass('disabled') && typeof(gLine) != 'undefined' && gLine != null)
       $(this).popover('show');
+  });
+
+  //上传数据导入功能
+  $('#import').click(function() {
+    $('#importModal').modal('toggle');
+  });
+  $('#importModal .modal-footer .btn-primary').click(uploadFileEventHandler);
+}
+
+function uploadFileEventHandler() {
+  var progressBar = $('#importModal .progress .bar');
+  $('#importAlert .alert').alert('close');
+
+  $('#importModal form').ajaxSubmit({
+    data: {
+      postToken : $('#post-token').data('token')
+    },
+    dataType: 'json',
+    beforeSend: function() {
+      progressBar.width('0%');
+    },
+    uploadProgress: function(e, position, total, percentComplete) {
+      progressBar.width(percentComplete + '%');
+    },
+    success: function(response) {
+      $('#post-token').data('token', response.token);
+      if(response.errno === 0) {
+        var alert = $('<div class="alert alert-success" style="display: none;"><strong>导入成功！</strong></div>');
+        alert.append(response.msg).appendTo('#importAlert').show();
+        setTimeout('location.reload()', 2000);//2秒后刷新页面
+      }
+      else {
+        var alert = $('<div class="alert alert-error" style="display: none;"><strong>导入失败！</strong></div>');
+        alert.append(response.msg).appendTo('#importAlert').show();
+      }
+    },
+    error: function() {
+      showErrorModal('当前登录已失效或您无权进行此操作，请重新登录再试。');
+    }
   });
 }
 

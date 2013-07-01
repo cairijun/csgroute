@@ -29,7 +29,7 @@ class adminController extends appController
 		$data['title'] = $data['top_title'] = '管理首页';
         $data['routesList'] = get_routes_list();
         $data['usersList'] = get_users_list();
-        $data['js'] = array('admin.js');
+        $data['js'] = array('admin.js', 'jquery.form.js');
         $data['auth'] = g('gAuth');
         $data['postToken'] = generate_post_token();
         if(isset($_COOKIE['USERNAME']))
@@ -173,5 +173,64 @@ class adminController extends appController
                     json_encode(
                         array('errno' => -1, 'msg' => '无法删除最高权限用户。', 'token' => $newToken)
                     )));
+    }
+
+    function ajax_upload_data_file()
+    {
+        if(!g('gAuth') || !check_permissions($_COOKIE['USERID'], 5))
+        {
+            add_a_log(
+                'admin.class.php:ajax_upload_data_file()',
+                'upload_data_file_denied',
+                $_COOKIE['USERNAME']);
+            output_403();
+        }
+        $newToken = anti_csrf(true);
+
+        //检查潜在文件上传攻击
+        $routes_file = $_FILES['routesfile']['tmp_name'];
+        $markers_file = $_FILES['markersfile']['tmp_name'];
+        if(!is_uploaded_file($routes_file) || !is_uploaded_file($markers_file))
+        {
+            add_a_log(
+                'admin.class.php:ajax_upload_data_file()',
+                'upload_file_attack',
+                $_COOKIE['USERNAME'] . ',' . $routes_file . ',' .$markers_file);
+            output_403();
+        }
+
+        $markers_position = parse_markers_file($markers_file);
+        if(!is_array($markers_position))
+        {
+            ajax_echo(
+                json_encode(
+                    array('errno' => -1, 'msg' => $markers_position, 'token' => $newToken)));
+            exit();
+        }
+
+        $routes = parse_routes_file(
+            $routes_file,
+            $_POST['startrn'],
+            $_POST['col1'],
+            $_POST['col2'],
+            $_POST['col3'],
+            $_POST['col4'],
+            $_POST['col5']);
+        if(!is_array($routes))
+        {
+            ajax_echo(
+                json_encode(
+                    array('errno' => -2, 'msg' => $routes, 'token' => $newToken)));
+            exit();
+        }
+
+        if(import_routes($routes, $markers_position))
+            ajax_echo(
+                json_encode(
+                    array('errno' => 0, 'msg' => '导入成功！', 'token' => $newToken)));
+        else
+            ajax_echo(
+                json_encode(
+                    array('errno' => -3, 'msg' => '数据错误！', 'token' => $newToken)));
     }
 }
