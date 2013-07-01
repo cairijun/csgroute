@@ -123,7 +123,7 @@ function regLineEvents(line) {
   });
 }
 function regMarkerEvents(marker) {
-  //注册锚点的InfoWindow事件
+  //注册标记的InfoWindow事件
   google.maps.event.addListener(
     marker, 'click',
     function() {
@@ -133,8 +133,8 @@ function regMarkerEvents(marker) {
       gInfoWindow.open(map, this);
     }
   );
-  //注册锚点的删除事件
-  //右键点击锚点为删除
+  //注册标记的删除事件
+  //右键点击标记为删除
   google.maps.event.addListener(
     marker, 'rightclick',
     function() {

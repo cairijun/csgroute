@@ -3,7 +3,7 @@
     <h2>管理</h2>
     <p>
     在线路管理页面可以添加、删除、修改线路。<br>
-    在修改/添加模式下，在工具栏上选择“线路”或“锚点”，然后点击地图可以添加线路或锚点，右键点击线路上的节点及锚点可以删除相应的点。<br>
+    在修改/添加模式下，在工具栏上选择“线路”或“标记”，然后点击地图可以添加线路或标记，右键点击线路上的节点及标记可以删除相应的点。<br>
     拥有最高权限的用户可以在用户管理页面进行添加、删除用户。<br>
     用户权限分3种，分别为：查看线路、修改线路、最高权限。任何人都无法在系统中添加、删除最高权限用户。系统默认最高权限用户为root，如需修改、添加、删除最高权限用户，请直接在数据库的users表中操作。<br>
     出于安全原因，系统的运行日志不允许在系统中直接查看。如需查看请检查数据库的log表。
@@ -27,7 +27,7 @@
           </div>
           <div class="btn-group" id="addGroup" data-toggle="buttons-radio">
             <button type="button" class="btn active disabled" id="route"><i class="icon-pencil"></i>&nbsp;线路</button>
-            <button type="button" class="btn disabled" id="marker"><i class="icon-map-marker"></i>&nbsp;锚点</button>
+            <button type="button" class="btn disabled" id="marker"><i class="icon-map-marker"></i>&nbsp;标记</button>
           </div>
         </div>
 
@@ -125,11 +125,11 @@ function get_permissions_str($permissions)
 <div id="addMarkerModal" class="modal hide fade">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    <h3>插入锚点</h3>
+    <h3>插入标记</h3>
   </div>
   <div class="modal-body">
     <form>
-      <legend>锚点信息</legend>
+      <legend>标记信息</legend>
       <label>名称</label>
       <input id="markerTitle" type="text" class="input-block-level">
       <label>详情（井/塔基本情况、同井/塔架设光缆信息等）</label>

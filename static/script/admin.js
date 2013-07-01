@@ -10,10 +10,10 @@ function saveARoute() {
     ]);
   }
 
-  //构建锚点列表
+  //构建标记列表
   var _markersArrayToUpload = [];
   for(var i = 0 ; i < gMarkersArray.length ; i++) {
-    //跳过已被删除的锚点
+    //跳过已被删除的标记
     if(gMarkersArray[i] == null) {
       continue;
     }
@@ -304,13 +304,13 @@ function regMapEvents() {
         gLine.getPath().push(e.latLng);
       }
       else {
-        //锚点插入模式
+        //标记插入模式
         var _marker = new google.maps.Marker({
           draggable : true,
           position : e.latLng,
           map : map
         });
-        //延迟500毫秒后弹出锚点信息编辑框
+        //延迟500毫秒后弹出标记信息编辑框
         window.setTimeout(function() {
           callbackableModal('#addMarkerModal', function() {
             _marker.setTitle($('#markerTitle').val());
@@ -339,7 +339,7 @@ function regMapEvents() {
     }
   });
 
-  //线路和锚点的事件处理应在创建对象时绑定
+  //线路和标记的事件处理应在创建对象时绑定
 }
 
 function setToolbarStatus(status) {
